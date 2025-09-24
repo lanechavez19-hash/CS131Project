@@ -1,6 +1,11 @@
 import Phaser from "phaser";
+import PreloadScene from "./PreloadScene";
 import StartScene from "./StartScene";
 import PlayScene from "./PlayScene";
+import Game1Scene from "./Game1Scene";
+import Game2Scene from "./Game2Scene";
+import Game3Scene from "./Game3Scene";
+import PauseScene from "./PauseScene";
 
 new Phaser.Game({
   type: Phaser.AUTO,              // WebGL with Canvas fallback
@@ -12,5 +17,5 @@ new Phaser.Game({
     width: 800,
     height: 450
   },
-  scene: [StartScene,PlayScene]
+  scene: [PreloadScene,StartScene,PlayScene,Game1Scene,Game2Scene,Game3Scene,PauseScene]
 });

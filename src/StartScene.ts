@@ -1,11 +1,13 @@
 import Phaser from "phaser";
+import { addMuteButton } from "./ui/Buttons";
+import { Music } from "./Music";
 
 export default class StartScene extends Phaser.Scene {
   constructor() { super("Start"); }
 
   create() {
     const { width: W, height: H } = this.scale;
-
+    Music.play(this);
     this.add.text(W / 2, H * 0.35, "Davis Toad", {
       fontFamily: "system-ui, sans-serif",
       fontSize: "36px",
@@ -25,7 +27,9 @@ export default class StartScene extends Phaser.Scene {
 
     btn.on("pointerdown", () => this.scene.start("Play"));
     this.input.keyboard?.on("keydown", (e: KeyboardEvent) => {
-      if (e.code === "Enter" || e.code === "Space") this.scene.start("Play");
+      if (e.code === "Enter" || e.code === "Space") {
+        this.scene.start("Play");
+      }
     });
 
     this.add.text(W / 2, H * 0.85, "Press Enter/Space or Click Start", {
@@ -33,5 +37,7 @@ export default class StartScene extends Phaser.Scene {
       fontSize: "14px",
       color: "#0b3d5c"
     }).setOrigin(0.5);
+
+    addMuteButton(this);
   }
 }
