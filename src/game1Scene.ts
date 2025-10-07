@@ -125,13 +125,13 @@ export default class Game1Scene extends Phaser.Scene {
 
       // YES button (below question)
       const yesBtn3 = this.makeBtn(W / 2, H / 2 + 20, "Yes", () => {
-        this.showAnswer("Incorrect❌\nYou should not flush slime down your toilet\nIt can clog your pipes");
+        this.showAnswer("Incorrect❌\nYou should not flush rocks down your toilet\nThey can clog your pipes");
         this.clearOptionsOnly(questionText3, yesBtn3, noBtn3);
       });
 
       // NO button (below Yes button)
       const noBtn3 = this.makeBtn(W / 2, H / 2 + 80, "No", () => {
-        this.showAnswer("Correct✅\nYou should not flush slime down your toilet\nIt can clog your pipes");
+        this.showAnswer("Correct✅\nYou should not flush rocks down your toilet\nThey can clog your pipes");
         this.clearOptionsOnly(questionText3, yesBtn3, noBtn3);
       });
 
