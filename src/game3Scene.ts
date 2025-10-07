@@ -1,3 +1,6 @@
+import Phaser from "phaser";
+import { addControlButtons } from "./ui/Buttons";
+
 type CampObj = {
     key: string;
     x: number;
@@ -12,8 +15,7 @@ type CampObj = {
 };
 
 export default class Game3Scene extends Phaser.Scene {
-    constructor() { super({ key: 'Game3Scene' }); }
-
+    constructor() { super({ key: 'Game3' }); }
     campObjects: CampObj[] = [
         {
             key: 'bottle',
@@ -65,6 +67,7 @@ export default class Game3Scene extends Phaser.Scene {
     create() {
         // Hide main menu on game start
         const mainMenu = document.getElementById('main-menu');
+        addControlButtons(this);
         if (mainMenu) mainMenu.style.display = 'none';
         document.querySelectorAll('.clickable').forEach(e => e.remove());
         this.add.text(30, 30, 'Camping Game: Make eco-friendly choices!', { font: '24px Arial', color: '#064720' });
