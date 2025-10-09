@@ -3,138 +3,179 @@ import { addControlButtons } from "./ui/Buttons";
 
 type CampObj = {
     key: string;
-    x: number;
-    y: number;
-    img: string;
-    yesImg: string;
-    noImg: string;
-    id: string;
     question: string;
-    yesFeedback: string;
-    noFeedback: string;
+    correctAnswer: boolean; // true = Yes, false = No
+    correctFeedback: string;
+    incorrectFeedback: string;
 };
 
 export default class Game3Scene extends Phaser.Scene {
-    constructor() { super({ key: 'Game3' }); }
-    campObjects: CampObj[] = [
+    private currentAnswerText?: Phaser.GameObjects.Text;
+    private activeObjects: Phaser.GameObjects.GameObject[] = [];
+
+    constructor() {
+        super("Game3");
+    }
+
+    // Define camping/wildlife questions
+    private campObjects: CampObj[] = [
         {
             key: 'bottle',
-            x: 200, y: 300,
-            img: 'main1.png',
-            yesImg: 'yes1.png',
-            noImg: 'no1.png',
-            id: 'obj1',
-            question: 'Should you recycle this empty bottle?',
-            yesFeedback: 'Correct! Bottles belong in recycling.',
-            noFeedback: 'Oops! We should ALWAYS recycle bottles.'
+            question: 'Should you recycle this empty water bottle?',
+            correctAnswer: true, // Yes is correct
+            correctFeedback: 'Correct!\nAlways recycle bottles to protect nature!',
+            incorrectFeedback: 'Incorrect!\nWe should always recycle bottles!'
         },
         {
             key: 'wrapper',
-            x: 420, y: 360,
-            img: 'main2.png',
-            yesImg: 'yes2.png',
-            noImg: 'no2.png',
-            id: 'obj2',
-            question: 'Is it okay to throw this wrapper on the ground?',
-            yesFeedback: 'No! We should protect nature.',
-            noFeedback: 'Right! Littering harms animals.'
+            question: 'Is it okay to leave food wrappers on the ground?',
+            correctAnswer: false, // No is correct
+            correctFeedback: 'Correct!\nNever litter! It harms wildlife.',
+            incorrectFeedback: 'Incorrect!\nLittering hurts animals and nature!'
         },
         {
             key: 'firepit',
-            x: 600, y: 240,
-            img: 'main3.png',
-            yesImg: 'yes3.png',
-            noImg: 'no3.png',
-            id: 'obj3',
             question: 'Should you put out your campfire before leaving?',
-            yesFeedback: 'Great! That keeps the forest safe.',
-            noFeedback: 'Wrong! Always put out fires before leaving.'
+            correctAnswer: true, // Yes is correct
+            correctFeedback: 'Correct!\nAlways extinguish fires to prevent wildfires!',
+            incorrectFeedback: 'Incorrect!\nNever leave a campfire burning!'
         }
     ];
 
-    preload() {
-        this.load.image('main1.png', 'assets/main1.png');
-        this.load.image('main2.png', 'assets/main2.png');
-        this.load.image('main3.png', 'assets/main3.png');
-        this.load.image('yes1.png', 'assets/yes1.png');
-        this.load.image('no1.png', 'assets/no1.png');
-        this.load.image('yes2.png', 'assets/yes2.png');
-        this.load.image('no2.png', 'assets/no2.png');
-        this.load.image('yes3.png', 'assets/yes3.png');
-        this.load.image('no3.png', 'assets/no3.png');
+    create() {
+        const { width: W } = this.scale;
+
+        // Title
+        this.add.text(W / 2, 100, "Camping & Wildlife Game", {
+            fontSize: "28px",
+            color: "#000000",
+        }).setOrigin(0.5);
+
+        // Add pause/mute buttons
+        addControlButtons(this);
+
+        // === Three Question buttons horizontally ===
+        const startX = W / 2 - 200;
+        const spacing = 200;
+        const yPos = 400;
+
+        this.makeBtn(startX, yPos, "Bottle", () =>
+            this.askYesNoQuestion(0)
+        );
+
+        this.makeBtn(startX + spacing, yPos, "Wrapper", () =>
+            this.askYesNoQuestion(1)
+        );
+
+        this.makeBtn(startX + spacing * 2, yPos, "Campfire", () =>
+            this.askYesNoQuestion(2)
+        );
     }
 
-    create() {
-        // Hide main menu on game start
-        const mainMenu = document.getElementById('main-menu');
-        addControlButtons(this);
-        if (mainMenu) mainMenu.style.display = 'none';
-        document.querySelectorAll('.clickable').forEach(e => e.remove());
-        this.add.text(30, 30, 'Camping Game: Make eco-friendly choices!', { font: '24px Arial', color: '#064720' });
+    // Create interactive text buttons
+    private makeBtn(
+        x: number,
+        y: number,
+        label: string,
+        callback: () => void
+    ): Phaser.GameObjects.Text {
+        const btn = this.add.text(x, y, label, {
+            color: "#000000",
+            fontSize: "24px",
+            backgroundColor: "#ffffff",
+            padding: { x: 10, y: 5 },
+        })
+            .setOrigin(0.5)
+            .setInteractive({ useHandCursor: true })
+            .on("pointerdown", callback)
+            .on("pointerover", () => btn.setStyle({ backgroundColor: "#dddddd" }))
+            .on("pointerout", () => btn.setStyle({ backgroundColor: "#ffffff" }));
 
-        // Add interactive objects (HTML) for modal logic
-        this.campObjects.forEach(obj => {
-            const div = document.createElement('div');
-            div.className = 'clickable';
-            div.setAttribute('data-img', `assets/${obj.img}`);
-            div.setAttribute('data-yes', `assets/${obj.yesImg}`);
-            div.setAttribute('data-no', `assets/${obj.noImg}`);
-            div.setAttribute('data-id', obj.id);
-            div.setAttribute('data-question', obj.question);
-            div.setAttribute('data-yes-feedback', obj.yesFeedback);
-            div.setAttribute('data-no-feedback', obj.noFeedback);
-            div.style.top = obj.y + 'px';
-            div.style.left = obj.x + 'px';
-            document.body.appendChild(div);
-        });
+        return btn;
+    }
 
-        // DOM hooks for modal functionality
-        const objects = Array.from(document.querySelectorAll('.clickable')) as HTMLElement[];
-        const modal = document.getElementById('modal') as HTMLElement;
-        const modalImg = document.getElementById('modal-img') as HTMLImageElement;
-        const closeBtn = document.querySelector('.close') as HTMLElement;
-        const yesBtn = document.getElementById('yes-btn') as HTMLButtonElement;
-        const noBtn = document.getElementById('no-btn') as HTMLButtonElement;
-        const modalMsg = document.getElementById('modal-message') as HTMLElement;
-        let currentObject: HTMLElement | null = null;
+    // Display a question with Yes/No buttons
+    private askYesNoQuestion(index: number): void {
+        const { width: W, height: H } = this.scale;
 
-        setInterval(() => {
-            objects.forEach(obj => {
-                obj.classList.add('glow');
-                setTimeout(() => obj.classList.remove('glow'), 1000);
-            });
-        }, 3000);
+        // Clear previous question and answer
+        this.clearExistingQuestion();
 
-        objects.forEach(obj => {
-            obj.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const imgSrc = obj.getAttribute('data-img');
-                const question = obj.getAttribute('data-question');
-                modalImg.src = imgSrc ?? "";
-                modal.style.display = 'flex';
-                modalMsg.textContent = question ?? "";
-                currentObject = obj;
-            });
-        });
+        const obj = this.campObjects[index];
 
-        closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-        yesBtn.addEventListener('click', () => {
-            if (currentObject) {
-                const yesImg = currentObject.getAttribute('data-yes');
-                const feedback = currentObject.getAttribute('data-yes-feedback');
-                modalImg.src = yesImg ?? "";
-                modalMsg.textContent = feedback ?? "";
-                setTimeout(() => { modal.style.display = 'none'; }, 1200);
+        // Create question text
+        const questionText = this.add.text(W / 2, H / 2 - 50, obj.question, {
+            fontSize: "26px",
+            color: "#000000",
+            backgroundColor: "#eeeeee",
+            padding: { x: 10, y: 5 },
+            wordWrap: { width: 600 }
+        }).setOrigin(0.5);
+
+        // YES button
+        const yesBtn = this.makeBtn(W / 2, H / 2 + 20, "Yes", () => {
+            if (obj.correctAnswer === true) {
+                this.showAnswer(obj.correctFeedback);
+            } else {
+                this.showAnswer(obj.incorrectFeedback);
             }
+            this.clearOptionsOnly(questionText, yesBtn, noBtn);
         });
-        noBtn.addEventListener('click', () => {
-            if (currentObject) {
-                const noImg = currentObject.getAttribute('data-no');
-                const feedback = currentObject.getAttribute('data-no-feedback');
-                modalImg.src = noImg ?? "";
-                modalMsg.textContent = feedback ?? "";
-                setTimeout(() => { modal.style.display = 'none'; }, 1200);
+
+        // NO button
+        const noBtn = this.makeBtn(W / 2, H / 2 + 80, "No", () => {
+            if (obj.correctAnswer === false) {
+                this.showAnswer(obj.correctFeedback);
+            } else {
+                this.showAnswer(obj.incorrectFeedback);
             }
+            this.clearOptionsOnly(questionText, yesBtn, noBtn);
         });
+
+        // Track objects to clean up when switching questions
+        this.activeObjects = [questionText, yesBtn, noBtn];
+    }
+
+    // Remove old question & buttons (but keep the answer)
+    private clearOptionsOnly(
+        questionText: Phaser.GameObjects.Text,
+        yesBtn: Phaser.GameObjects.Text,
+        noBtn: Phaser.GameObjects.Text
+    ): void {
+        questionText.destroy();
+        yesBtn.destroy();
+        noBtn.destroy();
+        this.activeObjects = [];
+    }
+
+    // Remove previous question AND answer
+    private clearExistingQuestion(): void {
+        // Destroy question-related objects
+        this.activeObjects.forEach(obj => obj.destroy());
+        this.activeObjects = [];
+
+        // Destroy old answer text
+        if (this.currentAnswerText) {
+            this.currentAnswerText.destroy();
+            this.currentAnswerText = undefined;
+        }
+    }
+
+    // Show player's answer (moved higher on screen)
+    private showAnswer(text: string): void {
+        const { width: W, height: H } = this.scale;
+
+        // Remove any existing answer before showing a new one
+        if (this.currentAnswerText) {
+            this.currentAnswerText.destroy();
+        }
+
+        // Moved from H/2 + 140 to H/2 + 80 so it's more visible
+        this.currentAnswerText = this.add.text(W / 2, H / 2 + 80, text, {
+            fontSize: "24px",
+            color: "#000000",
+            wordWrap: { width: 600 },
+            align: "center"
+        }).setOrigin(0.5);
     }
 }
