@@ -3,12 +3,20 @@ import { addControlButtons } from "./ui/Buttons";
 
 export default class Game1Scene extends Phaser.Scene {
   private currentAnswerText?: Phaser.GameObjects.Text;
-  private activeObjects: Phaser.GameObjects.GameObject[] = []; // track question + buttons
+  private activeObjects: Phaser.GameObjects.GameObject[] = [];
 
   constructor() {
     super("Game1");
   }
 
+  // 🔹 1. Load your images
+  preload() {
+    this.load.image("slime", "assets/images/slime.png");
+    this.load.image("water", "assets/images/water.png");
+    this.load.image("rocks", "assets/images/rocks.png");
+  }
+
+  // 🔹 2. Create the scene
   create() {
     const { width: W } = this.scale;
 
@@ -18,167 +26,157 @@ export default class Game1Scene extends Phaser.Scene {
       color: "#000000",
     }).setOrigin(0.5);
 
-    // Add pause/mute buttons
+    // Add pause/mute buttons (already provided by your UI system)
     addControlButtons(this);
 
-    // === Three Ask Question buttons horizontally ===
-    const startX = W / 2 - 200; // starting position for leftmost button
-    const spacing = 200;        // horizontal spacing between buttons
-    const yPos = 400;           // same Y position for all buttons
+    // === Image Buttons ===
+    const startX = W / 2 - 200;
+    const spacing = 200;
+    const yPos = 360;
 
-    this.makeBtn(startX, yPos, "Slime", () =>
-      this.askYesNoQuestion(1)
-    );
+    // Create clickable image buttons
+    this.makeImageBtn(startX, yPos, "slime", () => this.askYesNoQuestion(1));
+    this.makeImageBtn(startX + spacing, yPos, "water", () => this.askYesNoQuestion(2));
+    this.makeImageBtn(startX + spacing * 2, yPos, "rocks", () => this.askYesNoQuestion(3));
 
-    this.makeBtn(startX + spacing, yPos, "Water", () =>
-      this.askYesNoQuestion(2)
-    );
-
-    this.makeBtn(startX + spacing * 2, yPos, "Rocks", () =>
-      this.askYesNoQuestion(3)
-    );
+    // Optional text labels under images
+    this.add.text(startX, yPos + 70, "Slime", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX + spacing, yPos + 70, "Water", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX + spacing * 2, yPos + 70, "Rocks", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
   }
 
-  // Create interactive text buttons
-  private makeBtn(
+  // 🔹 3. Helper function: image button
+  private makeImageBtn(
     x: number,
     y: number,
-    label: string,
-    callback: () => void
-  ): Phaser.GameObjects.Text {
+    key: string,
+    onClick: () => void
+  ): Phaser.GameObjects.Image {
+    const img = this.add.image(x, y, key).setInteractive({ useHandCursor: true });
+
+    // Scale all images to a consistent width
+    const targetWidth = 110;
+    const scale = targetWidth / img.width;
+    img.setScale(scale);
+
+    img.on("pointerdown", onClick)
+       .on("pointerover", () => img.setTint(0xdddddd))
+       .on("pointerout",  () => img.clearTint());
+
+    return img;
+  }
+
+  // 🔹 4. Question + answer logic
+  private askYesNoQuestion(question: number): void {
+    const { width: W, height: H } = this.scale;
+    this.clearExistingQuestion();
+
+    let qText: Phaser.GameObjects.Text;
+    let yesBtn: Phaser.GameObjects.Text;
+    let noBtn: Phaser.GameObjects.Text;
+
+    if (question === 1) {
+      qText = this.add.text(W / 2, H / 2 - 50, "Should you flush slime down your toilet?", {
+        fontSize: "26px",
+        color: "#000",
+        backgroundColor: "#eeeeee",
+        padding: { x: 10, y: 5 },
+      }).setOrigin(0.5);
+
+      yesBtn = this.makeTextBtn(W / 2, H / 2 + 20, "Yes", () => {
+        this.showAnswer("Incorrect❌\nYou should NOT flush slime down your toilet.\nIt can clog your pipes!");
+        this.clearOptionsOnly(qText, yesBtn, noBtn);
+      });
+
+      noBtn = this.makeTextBtn(W / 2, H / 2 + 80, "No", () => {
+        this.showAnswer("Correct✅\nYou should NOT flush slime down your toilet.\nIt can clog your pipes!");
+        this.clearOptionsOnly(qText, yesBtn, noBtn);
+      });
+    } 
+    else if (question === 2) {
+      qText = this.add.text(W / 2, H / 2 - 50, "Should you pour water down your sink drain?", {
+        fontSize: "26px",
+        color: "#000",
+        backgroundColor: "#eeeeee",
+        padding: { x: 10, y: 5 },
+      }).setOrigin(0.5);
+
+      yesBtn = this.makeTextBtn(W / 2, H / 2 + 20, "Yes", () => {
+        this.showAnswer("Correct✅\nWater is safe to pour down the sink!\nJust be careful not to waste it.");
+        this.clearOptionsOnly(qText, yesBtn, noBtn);
+      });
+
+      noBtn = this.makeTextBtn(W / 2, H / 2 + 80, "No", () => {
+        this.showAnswer("Incorrect❌\nWater is safe to pour down the sink!\nJust be careful not to waste it.");
+        this.clearOptionsOnly(qText, yesBtn, noBtn);
+      });
+    } 
+    else {
+      qText = this.add.text(W / 2, H / 2 - 50, "Should you flush rocks down your toilet?", {
+        fontSize: "26px",
+        color: "#000",
+        backgroundColor: "#eeeeee",
+        padding: { x: 10, y: 5 },
+      }).setOrigin(0.5);
+
+      yesBtn = this.makeTextBtn(W / 2, H / 2 + 20, "Yes", () => {
+        this.showAnswer("Incorrect❌\nYou should NOT flush rocks down your toilet.\nThey can damage or clog pipes!");
+        this.clearOptionsOnly(qText, yesBtn, noBtn);
+      });
+
+      noBtn = this.makeTextBtn(W / 2, H / 2 + 80, "No", () => {
+        this.showAnswer("Correct✅\nYou should NOT flush rocks down your toilet.\nThey can damage or clog pipes!");
+        this.clearOptionsOnly(qText, yesBtn, noBtn);
+      });
+    }
+
+    this.activeObjects = [qText, yesBtn, noBtn];
+  }
+
+  // 🔹 5. Text button helper (for Yes/No)
+  private makeTextBtn(x: number, y: number, label: string, cb: () => void) {
     const btn = this.add.text(x, y, label, {
-      color: "#000000",
+      color: "#000",
       fontSize: "24px",
-      backgroundColor: "#ffffff",
+      backgroundColor: "#fff",
       padding: { x: 10, y: 5 },
     })
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true })
-      .on("pointerdown", callback)
-      .on("pointerover", () => btn.setStyle({ backgroundColor: "#dddddd" }))
-      .on("pointerout", () => btn.setStyle({ backgroundColor: "#ffffff" }));
-
+    .setOrigin(0.5)
+    .setInteractive({ useHandCursor: true })
+    .on("pointerdown", cb)
+    .on("pointerover", () => btn.setStyle({ backgroundColor: "#dddddd" }))
+    .on("pointerout", () => btn.setStyle({ backgroundColor: "#ffffff" }));
     return btn;
   }
 
-  // Display a question with Yes/No buttons
-  private askYesNoQuestion(question: number): void {
-    const { width: W, height: H } = this.scale;
-
-    // Clear previous question and answer
-    this.clearExistingQuestion();
-    //"Should you flush slime down your toilet?";
-    if(question==1){
-      // Create question text
-      const questionText1 = this.add.text(W / 2, H / 2 - 50, "Should you flush slime down your toilet?", {
-        fontSize: "26px",
-        color: "#000000",
-        backgroundColor: "#eeeeee",
-        padding: { x: 10, y: 5 },
-      }).setOrigin(0.5);
-
-      // YES button (below question)
-      const yesBtn1 = this.makeBtn(W / 2, H / 2 + 20, "Yes", () => {
-        this.showAnswer("Incorrect❌\nYou should not flush slime down your toilet\nIt can clog your pipes");
-        this.clearOptionsOnly(questionText1, yesBtn1, noBtn1);
-      });
-
-      // NO button (below Yes button)
-      const noBtn1 = this.makeBtn(W / 2, H / 2 + 80, "No", () => {
-        this.showAnswer("Correct✅\nYou should not flush slime down your toilet\nIt can clog your pipes");
-        this.clearOptionsOnly(questionText1, yesBtn1, noBtn1);
-      });
-
-      // Track objects to clean up when switching questions
-      this.activeObjects = [questionText1, yesBtn1, noBtn1];
-      } else if(question==2){
-        // Create question text
-      const questionText2 = this.add.text(W / 2, H / 2 - 50, "Should you pour water down your sink drain?", {
-        fontSize: "26px",
-        color: "#000000",
-        backgroundColor: "#eeeeee",
-        padding: { x: 10, y: 5 },
-      }).setOrigin(0.5);
-
-      // YES button (below question)
-      const yesBtn2 = this.makeBtn(W / 2, H / 2 + 20, "Yes", () => {
-        this.showAnswer("Correct✅\nYou should pour water down your sink drain\nThat is what it is made for\nBut be careful not to waste water");
-        this.clearOptionsOnly(questionText2, yesBtn2, noBtn2);
-      });
-
-      // NO button (below Yes button)
-      const noBtn2 = this.makeBtn(W / 2, H / 2 + 80, "No", () => {
-        this.showAnswer("Incorrect❌\nYou should pour water down your sink drain\nThat is what it is made for\nBut be careful not to waste water");
-        this.clearOptionsOnly(questionText2, yesBtn2, noBtn2);
-      });
-
-      // Track objects to clean up when switching questions
-      this.activeObjects = [questionText2, yesBtn2, noBtn2];
-      } else {
-        // Create question text
-      const questionText3 = this.add.text(W / 2, H / 2 - 50, "Should you flush rock down your toilet?", {
-        fontSize: "26px",
-        color: "#000000",
-        backgroundColor: "#eeeeee",
-        padding: { x: 10, y: 5 },
-      }).setOrigin(0.5);
-
-      // YES button (below question)
-      const yesBtn3 = this.makeBtn(W / 2, H / 2 + 20, "Yes", () => {
-        this.showAnswer("Incorrect❌\nYou should not flush rocks down your toilet\nThey can clog your pipes");
-        this.clearOptionsOnly(questionText3, yesBtn3, noBtn3);
-      });
-
-      // NO button (below Yes button)
-      const noBtn3 = this.makeBtn(W / 2, H / 2 + 80, "No", () => {
-        this.showAnswer("Correct✅\nYou should not flush rocks down your toilet\nThey can clog your pipes");
-        this.clearOptionsOnly(questionText3, yesBtn3, noBtn3);
-      });
-
-      // Track objects to clean up when switching questions
-      this.activeObjects = [questionText3, yesBtn3, noBtn3];
-      }
-      
-  }
-
-  // Remove old question & buttons (but keep the answer)
-  private clearOptionsOnly(
-    questionText: Phaser.GameObjects.Text,
-    yesBtn: Phaser.GameObjects.Text,
-    noBtn: Phaser.GameObjects.Text
-  ): void {
-    questionText.destroy();
-    yesBtn.destroy();
-    noBtn.destroy();
+  // 🔹 6. Clean-up helpers
+  private clearOptionsOnly(q: Phaser.GameObjects.Text, yes: Phaser.GameObjects.Text, no: Phaser.GameObjects.Text) {
+    q.destroy();
+    yes.destroy();
+    no.destroy();
     this.activeObjects = [];
   }
 
-
-  // Remove previous question AND answer
-  private clearExistingQuestion(): void {
-    // Destroy question-related objects
-    this.activeObjects.forEach(obj => obj.destroy());
+  private clearExistingQuestion() {
+    this.activeObjects.forEach(o => o.destroy());
     this.activeObjects = [];
 
-    // Destroy old answer text
     if (this.currentAnswerText) {
       this.currentAnswerText.destroy();
       this.currentAnswerText = undefined;
     }
   }
 
-  // Show player's answer
-  private showAnswer(text: string): void {
+  private showAnswer(text: string) {
     const { width: W, height: H } = this.scale;
 
-    // Remove any existing answer before showing a new one
-    if (this.currentAnswerText) {
-      this.currentAnswerText.destroy();
-    }
+    if (this.currentAnswerText) this.currentAnswerText.destroy();
 
-    this.currentAnswerText = this.add.text(W / 2, H / 2 + 100, text, {
-      fontSize: "24px",
-      color: "#000000",
+    this.currentAnswerText = this.add.text(W / 2, H / 2 + 120, text, {
+      fontSize: "22px",
+      color: "#000",
+      align: "center",
+      wordWrap: { width: 600 },
     }).setOrigin(0.5);
   }
 }
