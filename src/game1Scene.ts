@@ -76,55 +76,55 @@ export default class Game1Scene extends Phaser.Scene {
     let noBtn: Phaser.GameObjects.Text;
 
     if (question === 1) {
-      qText = this.add.text(W / 2, H / 2 - 50, "Should you flush slime down your toilet?", {
+      qText = this.add.text(W / 2, H / 2 - 60, "Should you flush slime down your toilet?", {
         fontSize: "26px",
         color: "#000",
         backgroundColor: "#eeeeee",
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
 
-      yesBtn = this.makeTextBtn(W / 2, H / 2 + 20, "Yes", () => {
+      yesBtn = this.makeTextBtn(W / 2, H / 2, "Yes", () => {
         this.showAnswer("Incorrect❌\nYou should NOT flush slime down your toilet.\nIt can clog your pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
-      noBtn = this.makeTextBtn(W / 2, H / 2 + 80, "No", () => {
+      noBtn = this.makeTextBtn(W / 2, H / 2 + 50, "No", () => {
         this.showAnswer("Correct✅\nYou should NOT flush slime down your toilet.\nIt can clog your pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
     } 
     else if (question === 2) {
-      qText = this.add.text(W / 2, H / 2 - 50, "Should you pour water down your sink drain?", {
+      qText = this.add.text(W / 2, H / 2 - 60, "Should you pour water down your sink drain?", {
         fontSize: "26px",
         color: "#000",
         backgroundColor: "#eeeeee",
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
 
-      yesBtn = this.makeTextBtn(W / 2, H / 2 + 20, "Yes", () => {
+      yesBtn = this.makeTextBtn(W / 2, H / 2, "Yes", () => {
         this.showAnswer("Correct✅\nWater is safe to pour down the sink!\nJust be careful not to waste it.");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
-      noBtn = this.makeTextBtn(W / 2, H / 2 + 80, "No", () => {
+      noBtn = this.makeTextBtn(W / 2, H / 2 + 50, "No", () => {
         this.showAnswer("Incorrect❌\nWater is safe to pour down the sink!\nJust be careful not to waste it.");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
     } 
     else {
-      qText = this.add.text(W / 2, H / 2 - 50, "Should you flush rocks down your toilet?", {
+      qText = this.add.text(W / 2, H / 2 - 60, "Should you flush rocks down your toilet?", {
         fontSize: "26px",
         color: "#000",
         backgroundColor: "#eeeeee",
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
 
-      yesBtn = this.makeTextBtn(W / 2, H / 2 + 20, "Yes", () => {
+      yesBtn = this.makeTextBtn(W / 2, H / 2, "Yes", () => {
         this.showAnswer("Incorrect❌\nYou should NOT flush rocks down your toilet.\nThey can damage or clog pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
-      noBtn = this.makeTextBtn(W / 2, H / 2 + 80, "No", () => {
+      noBtn = this.makeTextBtn(W / 2, H / 2 + 50, "No", () => {
         this.showAnswer("Correct✅\nYou should NOT flush rocks down your toilet.\nThey can damage or clog pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
@@ -151,10 +151,9 @@ export default class Game1Scene extends Phaser.Scene {
 
   // 🔹 6. Clean-up helpers
   private clearOptionsOnly(q: Phaser.GameObjects.Text, yes: Phaser.GameObjects.Text, no: Phaser.GameObjects.Text) {
-    q.destroy();
     yes.destroy();
     no.destroy();
-    this.activeObjects = [];
+    this.activeObjects = [q];
   }
 
   private clearExistingQuestion() {
@@ -172,7 +171,7 @@ export default class Game1Scene extends Phaser.Scene {
 
     if (this.currentAnswerText) this.currentAnswerText.destroy();
 
-    this.currentAnswerText = this.add.text(W / 2, H / 2 + 120, text, {
+    this.currentAnswerText = this.add.text(W / 2, H / 2 + 20, text, {
       fontSize: "22px",
       color: "#000",
       align: "center",
