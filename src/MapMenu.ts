@@ -37,24 +37,26 @@ export default class MapMenu {
 
     // --- Styling to center and layer above Phaser ---
     Object.assign(mapMenu.style, {
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      width: "850px",
-      height: "450px",
-      overflow: "hidden",
-      display: "none",
-      zIndex: "1000",
-      backgroundColor: "transparent",
-      opacity: "0",
-      transition: "opacity 0.5s ease",
-      border: "2px solid #4ee3e3",   
-      borderRadius: "6px",           
-      boxShadow: "0 0 6px rgba(78, 227, 227, 0.6)", 
-      padding: "0",                  
-      boxSizing: "border-box",       
-    });
+  position: "absolute",
+  top: "57%",
+  left: "53%",
+  transform: "translate(-50%, -50%)",
+  width: "850px",
+  height: "450px",
+  overflow: "hidden",
+  display: "none",
+  zIndex: "1000",
+  backgroundColor: "transparent",
+  opacity: "0",
+  transition: "opacity 0.5s ease",
+  border: "none",          // 👈 removes teal border
+  boxShadow: "none",       // 👈 removes glow
+  borderRadius: "6px",
+  padding: "0",
+  boxSizing: "border-box",
+  pointerEvents: "auto",
+});
+
 
     mapMenu.innerHTML = `
     <img id="map-image" src="assets/images/citymap.jpeg" alt="Game Map"
