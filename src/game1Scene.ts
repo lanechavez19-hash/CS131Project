@@ -37,12 +37,17 @@ export default class Game1Scene extends Phaser.Scene {
     // Create clickable image buttons
     this.makeImageBtn(startX, yPos, "PaperTowel", () => this.askYesNoQuestion(1));
     this.makeImageBtn(startX + spacing, yPos, "water", () => this.askYesNoQuestion(2));
-    this.makeImageBtn(startX + spacing * 2, yPos, "wipes", () => this.askYesNoQuestion(3));
+    this.makeImageBtn(startX + spacing * 2, yPos, "wipes", () => this.askYesNoQuestion(3));    
+
+    //Make image buttons selectable via keyboard
+    this.input.keyboard!.on('keydown-P', () => this.askYesNoQuestion(1));
+    this.input.keyboard!.on('keydown-W', () => this.askYesNoQuestion(2));
+    this.input.keyboard!.on('keydown-F', () => this.askYesNoQuestion(3));
 
     // Optional text labels under images
-    this.add.text(startX, yPos + 70, "Paper Towels", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
-    this.add.text(startX + spacing, yPos + 70, "Water", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
-    this.add.text(startX + spacing * 2, yPos + 70, "Fushable Wipes", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX, yPos + 70, "Paper Towels(P)", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX + spacing, yPos + 70, "Water(W)", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX + spacing * 2, yPos + 70, "Fushable Wipes(F)", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
   }
 
   // 🔹 3. Helper function: image button
@@ -83,12 +88,12 @@ export default class Game1Scene extends Phaser.Scene {
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
 
-      yesBtn = this.makeTextBtn(W / 2, H / 2, "Yes", () => {
+      yesBtn = this.makeTextBtn(W / 2, H / 2, "Yes(Y)", () => {
         this.showAnswer("Incorrect❌\n You should NOT flush paper towels down your toilet.\nIt can clog your pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
-      noBtn = this.makeTextBtn(W / 2, H / 2 + 50, "No", () => {
+      noBtn = this.makeTextBtn(W / 2, H / 2 + 50, "No(N)", () => {
         this.showAnswer("Correct✅\nYou should NOT flush paper towels down your toilet.\nIt can clog your pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
@@ -101,12 +106,12 @@ export default class Game1Scene extends Phaser.Scene {
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
 
-      yesBtn = this.makeTextBtn(W / 2, H / 2, "Yes", () => {
+      yesBtn = this.makeTextBtn(W / 2, H / 2, "Yes(Y)", () => {
         this.showAnswer("Correct✅\nWater is safe to pour down the sink!\nJust be careful not to waste it.");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
-      noBtn = this.makeTextBtn(W / 2, H / 2 + 50, "No", () => {
+      noBtn = this.makeTextBtn(W / 2, H / 2 + 50, "No(N)", () => {
         this.showAnswer("Incorrect❌\nWater is safe to pour down the sink!\nJust be careful not to waste it.");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
@@ -119,17 +124,25 @@ export default class Game1Scene extends Phaser.Scene {
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
 
-      yesBtn = this.makeTextBtn(W / 2, H / 2, "Yes", () => {
+      yesBtn = this.makeTextBtn(W / 2, H / 2, "Yes(Y)", () => {
         this.showAnswer("Incorrect❌\nYou should NOT put flushable wipes in the toilet.\nThey can clog pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
-      noBtn = this.makeTextBtn(W / 2, H / 2 + 50, "No", () => {
+      noBtn = this.makeTextBtn(W / 2, H / 2 + 50, "No(N)", () => {
         this.showAnswer("Correct✅\nYou should NOT put flushable wipes in the toilet.\nThey can clog pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
     }
-
+    //make yes and no buttons selectable via Y and N keys
+    this.input.keyboard!.removeAllListeners("keydown-Y");
+    this.input.keyboard!.removeAllListeners("keydown-N");
+    this.input.keyboard!.on("keydown-Y", () => {
+      yesBtn.emit("pointerdown"); // simulate clicking the "Yes" button
+    });
+    this.input.keyboard!.on("keydown-N", () => {
+      noBtn.emit("pointerdown"); // simulate clicking the "No" button
+    });
     this.activeObjects = [qText, yesBtn, noBtn];
   }
 
