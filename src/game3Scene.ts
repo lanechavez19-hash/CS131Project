@@ -4,7 +4,7 @@ import { addControlButtons } from "./ui/Buttons";
 type CampObj = {
     key: string;
     question: string;
-    correctAnswer: boolean; // true = Yes, false = No
+    correctAnswer: boolean;
     correctFeedback: string;
     incorrectFeedback: string;
 };
@@ -17,63 +17,112 @@ export default class Game3Scene extends Phaser.Scene {
         super("Game3");
     }
 
-    // Define camping/wildlife questions
     private campObjects: CampObj[] = [
         {
-            key: 'bottle',
-            question: 'Should you recycle this empty water bottle?',
-            correctAnswer: true, // Yes is correct
-            correctFeedback: 'Correct!\nAlways recycle bottles to protect nature!',
-            incorrectFeedback: 'Incorrect!\nWe should always recycle bottles!'
+            key: 'raccoon',
+            question: 'Is it ok to feed squirrels or raccoons?',
+            correctAnswer: false,
+            correctFeedback: 'Correct!\nNever. Feeding wildlife does more harm than good.',
+            incorrectFeedback: 'Incorrect!\nFeeding wildlife does more harm than good.'
         },
         {
             key: 'wrapper',
             question: 'Is it okay to leave food wrappers on the ground?',
-            correctAnswer: false, // No is correct
+            correctAnswer: false,
             correctFeedback: 'Correct!\nNever litter! It harms wildlife.',
             incorrectFeedback: 'Incorrect!\nLittering hurts animals and nature!'
         },
         {
-            key: 'firepit',
-            question: 'Should you put out your campfire before leaving?',
-            correctAnswer: true, // Yes is correct
-            correctFeedback: 'Correct!\nAlways extinguish fires to prevent wildfires!',
-            incorrectFeedback: 'Incorrect!\nNever leave a campfire burning!'
-        }
+            key: 'appleTree',
+            question: 'Should you pick up the fallen fruit?',
+            correctAnswer: true,
+            correctFeedback: 'Correct!\nPick up fallen fruit to avoid pest problems.',
+            incorrectFeedback: 'Incorrect!\nPick up fallen fruit to avoid pest problems.'
+        },
+        {
+            key: 'mosquito',
+            question: 'Is it okay to squish mosquitoes?',
+            correctAnswer: false,
+            correctFeedback: 'Correct!\nNot all bugs are bad, many are helpful!',
+            incorrectFeedback: 'Incorrect!\nEven the mosquitoes have a purpose in the ecosystem.'
+        },
+        {
+            key: 'dog',
+            question: 'Should you pick up your dog poop?',
+            correctAnswer: true,
+            correctFeedback: 'Correct!\nAlways pick up after your dog(s).',
+            incorrectFeedback: 'Incorrect!\nAlways pick up after your dog(s).'
+        },
     ];
 
-    create() {
-        const { width: W } = this.scale;
+    preload() {
+        // Load background
+        this.load.image("park", "assets/images/park.png");
 
-        // Title
-        this.add.text(W / 2, 100, "Camping & Wildlife Game", {
-            fontSize: "28px",
-            color: "#000000",
-        }).setOrigin(0.5);
+        // Load button images
+        this.load.image("raccoon", "assets/images/racoon.png");
+        this.load.image("wrapper", "assets/images/wrapper.png");
+        this.load.image("appleTree", "assets/images/appleTree.png");
+        this.load.image("mosquito", "assets/images/mosquito.png");
+        this.load.image("dog", "assets/images/dog.png");
+    }
+
+    create() {
+        const { width: W, height: H } = this.scale;
+
+        // Add background image
+        const bg = this.add.image(W / 2, H / 2, "park");
+        bg.setDisplaySize(W, H);
 
         // Add pause/mute buttons
         addControlButtons(this);
 
-        // === Three Question buttons horizontally ===
-        const startX = W / 2 - 200;
-        const spacing = 200;
+        // === Five Question buttons horizontally ===
+        const startX = W / 2 - 300;
+        const spacing = 150;
         const yPos = 400;
 
-        this.makeBtn(startX, yPos, "Bottle", () =>
+        this.makeImageBtn(startX, yPos-25, "raccoon", () =>
             this.askYesNoQuestion(0)
         );
 
-        this.makeBtn(startX + spacing, yPos, "Wrapper", () =>
+        this.makeImageBtn(startX + spacing, yPos-25, "wrapper", () =>
             this.askYesNoQuestion(1)
         );
 
-        this.makeBtn(startX + spacing * 2, yPos, "Campfire", () =>
+        this.makeImageBtn(startX + spacing * 2, yPos-25, "appleTree", () =>
             this.askYesNoQuestion(2)
+        );
+
+        this.makeImageBtn(startX + spacing * 3, yPos, "mosquito", () =>
+            this.askYesNoQuestion(3)
+        );
+
+        this.makeImageBtn(startX + spacing * 4, yPos, "dog", () =>
+            this.askYesNoQuestion(4)
         );
     }
 
-    // Create interactive text buttons
-    private makeBtn(
+    // Create interactive IMAGE buttons
+    private makeImageBtn(
+        x: number,
+        y: number,
+        imageKey: string,
+        callback: () => void
+    ): Phaser.GameObjects.Image {
+        const btn = this.add.image(x, y, imageKey)
+            .setOrigin(0.5)
+            .setScale(0.3) // Adjust scale if images are too big/small (e.g., 0.5 for half size)
+            .setInteractive({ useHandCursor: true })
+            .on("pointerdown", callback)
+            .on("pointerover", () => btn.setTint(0xdddddd))
+            .on("pointerout", () => btn.clearTint());
+
+        return btn;
+    }
+
+    // Create text buttons (for Yes/No)
+    private makeTextBtn(
         x: number,
         y: number,
         label: string,
@@ -94,16 +143,13 @@ export default class Game3Scene extends Phaser.Scene {
         return btn;
     }
 
-    // Display a question with Yes/No buttons
     private askYesNoQuestion(index: number): void {
         const { width: W, height: H } = this.scale;
 
-        // Clear previous question and answer
         this.clearExistingQuestion();
 
         const obj = this.campObjects[index];
 
-        // Create question text
         const questionText = this.add.text(W / 2, H / 2 - 50, obj.question, {
             fontSize: "26px",
             color: "#000000",
@@ -112,8 +158,7 @@ export default class Game3Scene extends Phaser.Scene {
             wordWrap: { width: 600 }
         }).setOrigin(0.5);
 
-        // YES button
-        const yesBtn = this.makeBtn(W / 2, H / 2 + 20, "Yes", () => {
+        const yesBtn = this.makeTextBtn(W / 2, H / 2 + 20, "Yes", () => {
             if (obj.correctAnswer === true) {
                 this.showAnswer(obj.correctFeedback);
             } else {
@@ -122,8 +167,7 @@ export default class Game3Scene extends Phaser.Scene {
             this.clearOptionsOnly(questionText, yesBtn, noBtn);
         });
 
-        // NO button
-        const noBtn = this.makeBtn(W / 2, H / 2 + 80, "No", () => {
+        const noBtn = this.makeTextBtn(W / 2, H / 2 + 80, "No", () => {
             if (obj.correctAnswer === false) {
                 this.showAnswer(obj.correctFeedback);
             } else {
@@ -132,11 +176,9 @@ export default class Game3Scene extends Phaser.Scene {
             this.clearOptionsOnly(questionText, yesBtn, noBtn);
         });
 
-        // Track objects to clean up when switching questions
         this.activeObjects = [questionText, yesBtn, noBtn];
     }
 
-    // Remove old question & buttons (but keep the answer)
     private clearOptionsOnly(
         questionText: Phaser.GameObjects.Text,
         yesBtn: Phaser.GameObjects.Text,
@@ -148,29 +190,23 @@ export default class Game3Scene extends Phaser.Scene {
         this.activeObjects = [];
     }
 
-    // Remove previous question AND answer
     private clearExistingQuestion(): void {
-        // Destroy question-related objects
         this.activeObjects.forEach(obj => obj.destroy());
         this.activeObjects = [];
 
-        // Destroy old answer text
         if (this.currentAnswerText) {
             this.currentAnswerText.destroy();
             this.currentAnswerText = undefined;
         }
     }
 
-    // Show player's answer (moved higher on screen)
     private showAnswer(text: string): void {
         const { width: W, height: H } = this.scale;
 
-        // Remove any existing answer before showing a new one
         if (this.currentAnswerText) {
             this.currentAnswerText.destroy();
         }
 
-        // Moved from H/2 + 140 to H/2 + 80 so it's more visible
         this.currentAnswerText = this.add.text(W / 2, H / 2 + 80, text, {
             fontSize: "24px",
             color: "#000000",
