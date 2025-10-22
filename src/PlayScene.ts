@@ -17,7 +17,9 @@ export default class PlayScene extends Phaser.Scene {
       color: "#ffffff"
     }).setOrigin(0.5);
 
-    // Add mute button (keeps consistency with your other scenes)
+    makeBtn(W*0.3,H*0.4, "Pretreatment", "Game1");
+    makeBtn(W*0.7,H*0.4, "Recycling", "Game2");
+    makeBtn(W*0.5,H*0.7, "Urban Wildlife", "Game3");
     addMuteButton(this);
 
     // Hide any existing map first (prevents duplicates)
@@ -29,7 +31,7 @@ export default class PlayScene extends Phaser.Scene {
     { id: "forest", name: "Storm Water", x: 200, y: 250, sceneKey: "Game1" },
     { id: "river",  name: "Recycling",   x: 400, y: 300, sceneKey: "Game2" },
     { id: "camp",   name: "Camping / Wildlife", x: 600, y: 320, sceneKey: "Game3" }
-  ];
+    ];
 
     // Build the map menu (the image and clickable markers)
     this.mapMenu = new MapMenu(nodes);
