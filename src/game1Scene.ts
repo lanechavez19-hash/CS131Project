@@ -11,9 +11,9 @@ export default class Game1Scene extends Phaser.Scene {
 
   // 🔹 1. Load your images
   preload() {
-    this.load.image("slime", "assets/images/slime.png");
+    this.load.image("PaperTowel", "assets/images/PaperTowel.png");
     this.load.image("water", "assets/images/water.png");
-    this.load.image("rocks", "assets/images/rocks.png");
+    this.load.image("wipes", "assets/images/wipes.png");
   }
 
   // 🔹 2. Create the scene
@@ -21,7 +21,7 @@ export default class Game1Scene extends Phaser.Scene {
     const { width: W } = this.scale;
 
     // Title
-    this.add.text(W / 2, 100, "Storm Water Game", {
+    this.add.text(W / 2, 100, "Pretreatment Game", {
       fontSize: "28px",
       color: "#000000",
     }).setOrigin(0.5);
@@ -35,14 +35,14 @@ export default class Game1Scene extends Phaser.Scene {
     const yPos = 360;
 
     // Create clickable image buttons
-    this.makeImageBtn(startX, yPos, "slime", () => this.askYesNoQuestion(1));
+    this.makeImageBtn(startX, yPos, "PaperTowel", () => this.askYesNoQuestion(1));
     this.makeImageBtn(startX + spacing, yPos, "water", () => this.askYesNoQuestion(2));
-    this.makeImageBtn(startX + spacing * 2, yPos, "rocks", () => this.askYesNoQuestion(3));
+    this.makeImageBtn(startX + spacing * 2, yPos, "wipes", () => this.askYesNoQuestion(3));
 
     // Optional text labels under images
-    this.add.text(startX, yPos + 70, "Slime", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX, yPos + 70, "Paper Towels", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
     this.add.text(startX + spacing, yPos + 70, "Water", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
-    this.add.text(startX + spacing * 2, yPos + 70, "Rocks", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX + spacing * 2, yPos + 70, "Fushable Wipes", { fontSize: "18px", color: "#000" }).setOrigin(0.5);
   }
 
   // 🔹 3. Helper function: image button
@@ -76,7 +76,7 @@ export default class Game1Scene extends Phaser.Scene {
     let noBtn: Phaser.GameObjects.Text;
 
     if (question === 1) {
-      qText = this.add.text(W / 2, H / 2 - 60, "Should you flush slime down your toilet?", {
+      qText = this.add.text(W / 2, H / 2 - 60, "Should you flush paper towels down your toilet?", {
         fontSize: "26px",
         color: "#000",
         backgroundColor: "#eeeeee",
@@ -84,12 +84,12 @@ export default class Game1Scene extends Phaser.Scene {
       }).setOrigin(0.5);
 
       yesBtn = this.makeTextBtn(W / 2, H / 2, "Yes", () => {
-        this.showAnswer("Incorrect❌\nYou should NOT flush slime down your toilet.\nIt can clog your pipes!");
+        this.showAnswer("Incorrect❌\n You should NOT flush paper towels down your toilet.\nIt can clog your pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
       noBtn = this.makeTextBtn(W / 2, H / 2 + 50, "No", () => {
-        this.showAnswer("Correct✅\nYou should NOT flush slime down your toilet.\nIt can clog your pipes!");
+        this.showAnswer("Correct✅\nYou should NOT flush paper towels down your toilet.\nIt can clog your pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
     } 
@@ -112,7 +112,7 @@ export default class Game1Scene extends Phaser.Scene {
       });
     } 
     else {
-      qText = this.add.text(W / 2, H / 2 - 60, "Should you flush rocks down your toilet?", {
+      qText = this.add.text(W / 2, H / 2 - 60, "Should you put flushable wipes in the toilet?", {
         fontSize: "26px",
         color: "#000",
         backgroundColor: "#eeeeee",
@@ -120,12 +120,12 @@ export default class Game1Scene extends Phaser.Scene {
       }).setOrigin(0.5);
 
       yesBtn = this.makeTextBtn(W / 2, H / 2, "Yes", () => {
-        this.showAnswer("Incorrect❌\nYou should NOT flush rocks down your toilet.\nThey can damage or clog pipes!");
+        this.showAnswer("Incorrect❌\nYou should NOT put flushable wipes in the toilet.\nThey can clog pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
       noBtn = this.makeTextBtn(W / 2, H / 2 + 50, "No", () => {
-        this.showAnswer("Correct✅\nYou should NOT flush rocks down your toilet.\nThey can damage or clog pipes!");
+        this.showAnswer("Correct✅\nYou should NOT put flushable wipes in the toilet.\nThey can clog pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
     }

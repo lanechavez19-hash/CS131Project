@@ -15,7 +15,7 @@ export default class PlayScene extends Phaser.Scene {
       btn.on("pointerdown", () => this.scene.start(target));
     };
 
-    makeBtn(W*0.3,H*0.4, "Storm Water", "Game1");
+    makeBtn(W*0.3,H*0.4, "Pretreatment", "Game1");
     makeBtn(W*0.7,H*0.4, "Recycling", "Game2");
     makeBtn(W*0.5,H*0.7, "Camping / Wildlife", "Game3");
     addMuteButton(this);
