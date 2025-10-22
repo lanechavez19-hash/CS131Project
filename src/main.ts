@@ -7,7 +7,8 @@ import Game2Scene from "./game2Scene";
 import Game3Scene from "./game3Scene";
 import PauseScene from "./PauseScene";
 
-new Phaser.Game({
+// Create Phaser game
+const game = new Phaser.Game({
   type: Phaser.AUTO,              // WebGL with Canvas fallback
   parent: "game",
   backgroundColor: "#aee0ff",
@@ -17,5 +18,16 @@ new Phaser.Game({
     width: 800,
     height: 450
   },
-  scene: [PreloadScene,StartScene,PlayScene,Game1Scene,Game2Scene,Game3Scene,PauseScene]
+  scene: [
+    PreloadScene,
+    StartScene,
+    PlayScene,
+    Game1Scene,
+    Game2Scene,
+    Game3Scene,
+    PauseScene
+  ]
 });
+
+// Expose game to MapMenu
+(window as any).game = game;
