@@ -17,11 +17,10 @@ export default class PlayScene extends Phaser.Scene {
       color: "#ffffff"
     }).setOrigin(0.5);
 
-    makeBtn(W*0.3,H*0.4, "Pretreatment", "Game1");
-    makeBtn(W*0.7,H*0.4, "Recycling", "Game2");
-    makeBtn(W*0.5,H*0.7, "Urban Wildlife", "Game3");
+    
     addMuteButton(this);
-
+    
+   
     // Hide any existing map first (prevents duplicates)
     const oldMap = document.getElementById("map-menu");
     if (oldMap) oldMap.remove();

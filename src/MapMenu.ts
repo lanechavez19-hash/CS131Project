@@ -41,21 +41,24 @@ export default class MapMenu {
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
-      width: "800px",
+      width: "850px",
       height: "450px",
       overflow: "hidden",
       display: "none",
       zIndex: "1000",
-      backgroundColor: "#0b2b2b",
+      backgroundColor: "transparent",
       opacity: "0",
       transition: "opacity 0.5s ease",
-      border: "2px solid #4ee3e3",
-      borderRadius: "12px",
+      border: "2px solid #4ee3e3",   
+      borderRadius: "6px",           
+      boxShadow: "0 0 6px rgba(78, 227, 227, 0.6)", 
+      padding: "0",                  
+      boxSizing: "border-box",       
     });
 
     mapMenu.innerHTML = `
     <img id="map-image" src="assets/images/citymap.jpeg" alt="Game Map"
-    style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:0;">
+    style="width:100%;height:100%;object-fit:fill;position:absolute;top:0;left:0;z-index:0;">
     <div id="map-markers" style="position:relative;width:100%;height:100%;"></div>
     `;
 
