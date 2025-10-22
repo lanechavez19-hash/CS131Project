@@ -1,23 +1,52 @@
 import Phaser from "phaser";
 import { addMuteButton } from "./ui/Buttons";
+import MapMenu, { SceneNode } from "./MapMenu";
 
 export default class PlayScene extends Phaser.Scene {
-  constructor() { super("Play"); }      
+  private mapMenu?: MapMenu;
+
+  constructor() {
+    super("Play");
+  }
+
   create() {
-    
     const { width: W, height: H } = this.scale;
 
-    this.add.text(W/2, H*0.2, "Choose a Mission", { fontSize: "32px" }).setOrigin(0.5);
-    // Buttons to launch game scenes, these are just place holders for now
-    const makeBtn = (x: number, y: number, label: string, target: string) => {
-      const btn = this.add.text(x, y, label, { color: "#000000", fontSize: "24px", backgroundColor: "#fff" })
-        .setOrigin(0.5).setInteractive({ cursor: "pointer" });
-      btn.on("pointerdown", () => this.scene.start(target));
-    };
+    this.add.text(W / 2, H * 0.15, "Select a Mission on the Map", {
+      fontSize: "32px",
+      color: "#ffffff"
+    }).setOrigin(0.5);
 
-    makeBtn(W*0.3,H*0.4, "Storm Water", "Game1");
-    makeBtn(W*0.7,H*0.4, "Recycling", "Game2");
-    makeBtn(W*0.5,H*0.7, "Camping / Wildlife", "Game3");
+    // Add mute button (keeps consistency with your other scenes)
     addMuteButton(this);
+
+    // Hide any existing map first (prevents duplicates)
+    const oldMap = document.getElementById("map-menu");
+    if (oldMap) oldMap.remove();
+
+    // Define the nodes that appear on the map
+    const nodes: SceneNode[] = [
+    { id: "forest", name: "Storm Water", x: 200, y: 250, sceneKey: "Game1" },
+    { id: "river",  name: "Recycling",   x: 400, y: 300, sceneKey: "Game2" },
+    { id: "camp",   name: "Camping / Wildlife", x: 600, y: 320, sceneKey: "Game3" }
+  ];
+
+    // Build the map menu (the image and clickable markers)
+    this.mapMenu = new MapMenu(nodes);
+
+    // Make sure the map is visible
+    const mapElement = document.getElementById("map-menu");
+    if (mapElement) mapElement.style.display = "block";
+  }
+
+  // Optional: Clean up the map when leaving this scene
+  shutdown() {
+    const mapElement = document.getElementById("map-menu");
+    if (mapElement) mapElement.remove();
+  }
+
+  // This ensures cleanup when scene is stopped
+  destroy() {
+    this.shutdown();
   }
 }
