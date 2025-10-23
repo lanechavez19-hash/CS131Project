@@ -160,12 +160,12 @@ export default class Game1Scene extends Phaser.Scene {
       }).setOrigin(0.5);
 
       yesBtn = this.makeTextBtn(W / 2, H / 2 - 40, "Yes(Y)", () => {
-        this.showAnswer("Incorrect❌\nYou should NEVER pour grease or oil down the drain.\nIt wil clop your sewer pipes!");
+        this.showAnswer("Incorrect❌\nYou should NEVER pour grease or oil down the drain.\nIt will clog your sewer pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
       noBtn = this.makeTextBtn(W / 2, H / 2 + 10, "No(N)", () => {
-        this.showAnswer("Correct✅\nYou should NEVER pour grease or oil down the drain.\nIt wil clop your sewer pipes!");
+        this.showAnswer("Correct✅\nYou should NEVER pour grease or oil down the drain.\nIt will clog your sewer pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
     } 
@@ -175,15 +175,16 @@ export default class Game1Scene extends Phaser.Scene {
         color: "#000",
         backgroundColor: "rgba(255, 255, 255, 0.7)",
         padding: { x: 10, y: 5 },
+        wordWrap: { width: 600 },
       }).setOrigin(0.5);
 
       yesBtn = this.makeTextBtn(W / 2, H / 2 - 40, "Yes(Y)", () => {
-        this.showAnswer("Correct✅\nYou should NOT put leftover food down the sink.\nIt can clog pipes!");
+        this.showAnswer("Correct✅\nYou should NOT put leftover food down the sink.\nIt can clog the pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
       noBtn = this.makeTextBtn(W / 2, H / 2 + 10, "No(N)", () => {
-        this.showAnswer("Incorrect❌\nYou should NOT put leftover food down the sink.\nIt can clog pipes!");
+        this.showAnswer("Incorrect❌\nYou should NOT put leftover food down the sink.\nIt can clog the pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
     } 
