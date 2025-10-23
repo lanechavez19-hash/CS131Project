@@ -1,12 +1,13 @@
 import Phaser from "phaser";
 import { addControlButtons } from "./ui/Buttons";
 
-type Category = 'recycle' | 'compost' | 'landfill';
+type Category = 'paper' | 'bottles_cans' | 'compost' | 'landfill';
 
 type ItemDef = {
   name: string;
+  slug: string;
   category: Category;
-  color: number; // for zero-asset block
+  color: number; 
 };
 
 export default class Game2Scene extends Phaser.Scene {
@@ -21,7 +22,7 @@ export default class Game2Scene extends Phaser.Scene {
   private pool: ItemDef[] = [];
   private roundItems: ItemDef[] = [];
   private liveDraggables: Phaser.GameObjects.Container[] = [];
-  private bins!: Record<Category, Phaser.GameObjects.Container>;
+  private bins!: Record<Category, Phaser.GameObjects.Image>;
   private score = 0;
   private lives = this.START_LIVES;
   private itemsLeft = this.ITEMS_PER_ROUND;
@@ -31,50 +32,83 @@ export default class Game2Scene extends Phaser.Scene {
   private livesText!: Phaser.GameObjects.Text;
   private leftText!: Phaser.GameObjects.Text;
 
-  preload() { /* no assest yet, will implement later*/ }
+  preload() {
+  // --- Load item images ---
+  this.makePool();
+  // background
+  this.load.image('sortingBackground', 'assets/images/sortingBackground.png');  
+  // Load all item textures (from public/assets/items/)
+  this.pool.forEach(it => {
+    this.load.image(it.slug, `assets/items/${it.slug}.png`);
+  });
 
+  // --- Load bins ---
+  this.load.image('bottles_bin', 'assets/bins/bottles_bin.png');
+  this.load.image('organics_bin', 'assets/bins/organics_bin.png');
+  this.load.image('trash_bin', 'assets/bins/trash_bin.png');
+  this.load.image('paper_bin', 'assets/bins/paper_bin.png');
+}
   create() {
+    const bg = this.add.image(0, 0, 'sortingBackground')
+      .setOrigin(0) // top-left corner
+      .setDisplaySize(this.scale.width, this.scale.height); // stretch to screen
     addControlButtons(this);
-    this.makePool();
     this.buildHUD();
     this.buildBins();
     this.startRound();
   }
 
-  // creates a pool of 25 items, can always add more items.
+  // creates a pool of items, can always add more items.
   private makePool() {
-    const recycle: ItemDef[] = [
-      { name: 'Water Bottle', category: 'recycle', color: 0x56cfe1 },
-      { name: 'Soda Can', category: 'recycle', color: 0x56cfe1 },
-      { name: 'Glass Jar', category: 'recycle', color: 0x56cfe1 },
-      { name: 'Cardboard Box', category: 'recycle', color: 0x56cfe1 },
-      { name: 'Newspaper', category: 'recycle', color: 0x56cfe1 },
-      { name: 'Mail', category: 'recycle', color: 0x56cfe1 },
-      { name: 'Cereal Box', category: 'recycle', color: 0x56cfe1 },
-      { name: 'Tin Can', category: 'recycle', color: 0x56cfe1 }
+    const paper: ItemDef[] = [
+      { name: 'Cardboard Box', slug: 'cardboard_box', category: 'paper', color: 0x56cfe1 },
+      { name: 'Envelope', slug: 'envelope', category: 'paper', color: 0x56cfe1 },
+      { name: 'Magazine', slug: 'magazine', category: 'paper', color: 0x56cfe1 },
+      { name: 'Newspaper', slug: 'newspaper', category: 'paper', color: 0x56cfe1 },
+      { name: 'Notebook', slug: 'notebook', category: 'paper', color: 0x56cfe1 },
+      { name: 'Paper Bag', slug: 'paper_bag', category: 'paper', color: 0x56cfe1 },
+      { name: 'Postcard', slug:'postcard', category: 'paper', color: 0x56cfe1 },
+    ];
+    const bottles_cans: ItemDef[] = [
+      { name: 'Water Bottle', slug:'plastic_bottle', category: 'bottles_cans', color: 0x56cfe1 },
+      { name: 'Soda Can', slug: 'soda_can', category: 'bottles_cans', color: 0x56cfe1 },
+      { name: 'Glass Jar', slug: 'glass_jar', category: 'bottles_cans', color: 0x56cfe1 },
+      { name: 'Detergent Bottle', slug: 'detergent_bottle', category: 'bottles_cans', color: 0x56cfe1 },
+      { name: 'Aerosol Can', slug: 'aerosol_can', category: 'bottles_cans', color: 0x56cfe1 },
+      { name: 'Aluminum foil', slug: 'aluminum_foil', category: 'bottles_cans', color: 0x56cfe1 },
+      { name: 'Milk Carton', slug: 'milk_carton', category: 'bottles_cans', color: 0x56cfe1 },
+      { name: 'Tin Can', slug: 'can', category: 'bottles_cans', color: 0x56cfe1 },
+      { name: 'Metal Can', slug: 'metal_can', category: 'bottles_cans', color: 0x56cfe1 }
     ];
     const compost: ItemDef[] = [
-      { name: 'Banana Peel', category: 'compost', color: 0x8bc34a },
-      { name: 'Apple Core', category: 'compost', color: 0x8bc34a },
-      { name: 'Coffee Grounds', category: 'compost', color: 0x8bc34a },
-      { name: 'Tea Bag', category: 'compost', color: 0x8bc34a },
-      { name: 'Eggshells', category: 'compost', color: 0x8bc34a },
-      { name: 'Leaves', category: 'compost', color: 0x8bc34a },
-      { name: 'Bread Crust', category: 'compost', color: 0x8bc34a },
-      { name: 'Orange Peel', category: 'compost', color: 0x8bc34a }
+      { name: 'Banana Peel', slug: 'banana_peel', category: 'compost', color: 0x8bc34a },
+      { name: 'Apple Core', slug: 'apple_core', category: 'compost', color: 0x8bc34a },
+      { name: 'Coffee Grounds', slug: 'coffee_grounds', category: 'compost', color: 0x8bc34a },
+      { name: 'Tea Bag', slug: 'teabag', category: 'compost', color: 0x8bc34a },
+      { name: 'Eggshells', slug: 'egg_shell',  category: 'compost', color: 0x8bc34a },
+      { name: 'Leaves', slug: 'leaves',  category: 'compost', color: 0x8bc34a },
+      { name: 'Bread', slug: 'bread',  category: 'compost', color: 0x8bc34a },
+      { name: 'Orange Peel', slug: 'orange_peel',  category: 'compost', color: 0x8bc34a },
+      { name: 'Drumstick', slug: 'drumstick',  category: 'compost', color: 0x8bc34a },
+      { name: 'Used Napkin', slug: 'used_napkin',  category: 'compost', color: 0x8bc34a },
+      { name: 'Veggies', slug: 'veggies',  category: 'compost', color: 0x8bc34a },
+      { name: 'Wilted Flower', slug: 'wilted_flower',  category: 'compost', color: 0x8bc34a }
     ];
     const landfill: ItemDef[] = [
-      { name: 'Chip Bag', category: 'landfill', color: 0xffa94d },
-      { name: 'Styrofoam Cup', category: 'landfill', color: 0xffa94d },
-      { name: 'Plastic Utensil', category: 'landfill', color: 0xffa94d },
-      { name: 'Candy Wrapper', category: 'landfill', color: 0xffa94d },
-      { name: 'Diaper', category: 'landfill', color: 0xffa94d },
-      { name: 'Broken Toy', category: 'landfill', color: 0xffa94d },
-      { name: 'Greasy Pizza Box', category: 'landfill', color: 0xffa94d },
-      { name: 'Pen', category: 'landfill', color: 0xffa94d },
-      { name: 'Straw', category: 'landfill', color: 0xffa94d }
+      { name: 'Chip Bag', slug:'bag_of_chips', category: 'landfill', color: 0xffa94d },
+      { name: 'Styrofoam Cup', slug:'styrofoam_cup', category: 'landfill', color: 0xffa94d },
+      { name: 'Plastic Utensil', slug:'plastic_cutlery', category: 'landfill', color: 0xffa94d },
+      { name: 'Candy Wrapper', slug: 'candy_wrapper', category: 'landfill', color: 0xffa94d },
+      { name: 'Teddy Bear', slug: 'teddy', category: 'landfill', color: 0xffa94d },
+      { name: 'Tooth Brush', slug: 'toothbrush', category: 'landfill', color: 0xffa94d },
+      { name: 'Straw', slug: 'straw', category: 'landfill', color: 0xffa94d },
+      { name: 'Broken Phone', slug: 'broken_phone', category: 'landfill', color: 0xffa94d },
+      { name: 'Nitrile Glove', slug: 'nitrile_glove',category: 'landfill', color: 0xffa94d },
+      { name: 'Takeout Box', slug: 'takeout', category: 'landfill', color: 0xffa94d },
+      { name: 'Lightbulb', slug: 'light_bulb', category: 'landfill', color: 0xffa94d },
+      { name: 'Pizza box', slug: 'pizza_box', category: 'landfill', color: 0xffa94d }
     ];
-    this.pool = [...recycle, ...compost, ...landfill]; // 25 items
+    this.pool = [...bottles_cans,...paper, ...compost, ...landfill]; // 25 items
   }
 
   private buildHUD() {
@@ -84,34 +118,34 @@ export default class Game2Scene extends Phaser.Scene {
     this.leftText  = this.add.text(24, 100, 'Items Left: 10', { fontFamily: 'Arial', fontSize: '18px', color: '#1a202c' });
   }
 
-  private buildBins() {
-    const { width, height } = this.scale;
-    const gap = 24;
-    const w = (width - gap * 4) / 3;
-    const h = 130;
-    const y = height - h / 2 - 24;
+private buildBins() {
+  const { width, height } = this.scale;
+  const y = height - 90;
+  const margin = 70;
+  const cols = 4;
+  const gap = (width - margin * 2) / (cols - 1);
 
-    const mkBin = (x: number, label: string, color: number) => {
-      const panel = this.add.rectangle(x, y, w, h, color, 0.18).setStrokeStyle(3, color).setOrigin(0.5);
-      const text = this.add.text(x, y - h / 2 + 10, label, {
-        fontFamily: 'Arial', fontSize: '18px', color: '#222'
-      }).setOrigin(0.5, 0);
-      const c = this.add.container(0, 0, [panel, text]);
-      // store bounds for hit-test
-      (c as any).panel = panel;
-      return c;
-    };
+  const mk = (i: number, cat: Category, tex: string) => {
+    const x = margin + gap * i;
+    const img = this.add.image(x, y, tex).setOrigin(0.5).setScale(0.25);
+    return img;
+  };
 
-    const x1 = gap + w / 2;
-    const x2 = gap * 2 + w + w / 2;
-    const x3 = gap * 3 + w * 2 + w / 2;
+  this.bins = {
+    paper:       mk(0, 'paper',       'paper_bin'),
+    bottles_cans:  mk(1, 'bottles_cans',  'bottles_bin'),
+    compost:    mk(2, 'compost',    'organics_bin'),
+    landfill:       mk(3, 'landfill',       'trash_bin')
+  };
 
-    this.bins = {
-      recycle: mkBin(x1, 'RECYCLE', 0x3182ce),
-      compost: mkBin(x2, 'COMPOST', 0x2f855a),
-      landfill: mkBin(x3, 'LANDFILL', 0xc05621)
-    };
-  }
+  const labels: [Category, string, string][] = [
+    ['paper', 'PAPER', '#2E5797'],
+    ['bottles_cans', 'BOTTLES & CANS', '#41B0E6'],
+    ['compost', 'ORGANICS', '#2F723C'],
+    ['landfill', 'TRASH', '#383435']
+  ];
+}
+
 
   private startRound() {
     // reset
@@ -125,7 +159,7 @@ export default class Game2Scene extends Phaser.Scene {
     this.liveDraggables.forEach(d => d.destroy());
     this.liveDraggables = [];
 
-    // sample 10 from 25
+    // sample 10 from 40
     const sample = Phaser.Utils.Array.Shuffle(this.pool.slice()).slice(0, this.ITEMS_PER_ROUND);
     this.roundItems = sample;
 
@@ -133,21 +167,25 @@ export default class Game2Scene extends Phaser.Scene {
     this.spawnItems(sample);
   }
 
-  // ---------- Spawning & Drag ----------
-  private spawnItems(items: ItemDef[]) {
-  const { width } = this.scale;
+ // helper: scale an image to fit within max box (preserve aspect)
+fitImage(image: Phaser.GameObjects.Image, maxW: number, maxH: number) {
+  const tex = image.texture.getSourceImage() as HTMLImageElement;
+  const iw = tex.width, ih = tex.height;
+  if (!iw || !ih) return;
+  const s = Math.min(maxW / iw, maxH / ih);
+  image.setScale(s);
+}
 
-  // layout: 2 rows × 5 columns
+private spawnItems(items: ItemDef[]) {
   const COLS = 5;
-  const ROWS = Math.ceil(items.length / COLS);
-  const startX = 110;           // left padding
-  const colGap = 140;           // horizontal spacing
-  const startY = 140;           // top row y
-  const rowGap = 90;            // vertical spacing
+  const startX = 110;
+  const colGap = 140;
+  const startY = 140;
+  const rowGap = 90;
 
-  // smaller objects, can modify if needed
-  const CARD_W = 90;
-  const CARD_H = 40;
+  // thumbnail box to fit images into
+  const THUMB_MAX_W = 90;
+  const THUMB_MAX_H = 70;
   const FONT_SIZE = 12;
 
   // clear previous
@@ -157,38 +195,68 @@ export default class Game2Scene extends Phaser.Scene {
   items.forEach((it, i) => {
     const col = i % COLS;
     const row = Math.floor(i / COLS);
-
     const x = startX + col * colGap;
     const y = startY + row * rowGap;
 
-    // build card
-    const card = this.add.rectangle(0, 0, CARD_W, CARD_H, it.color)
-      .setOrigin(0.5)
-      .setStrokeStyle(2, 0x222222);
+    // try to create an image using item name as key
+    let img: Phaser.GameObjects.Image | null = null;
+    if (this.textures.exists(it.slug)) {
+      img = this.add.image(0, 0, it.slug).setOrigin(0.5);
+      this.fitImage(img, THUMB_MAX_W, THUMB_MAX_H);
+    }
 
+    // optional label (tiny, below image)
     const label = this.add.text(0, 0, it.name, {
       fontFamily: 'Arial',
       fontSize: `${FONT_SIZE}px`,
       color: '#111',
-      wordWrap: { width: CARD_W - 8 }
+      align: 'center',
+      wordWrap: { width: THUMB_MAX_W }
     }).setOrigin(0.5);
 
-    // container holds both and is the thing we drag
-    const container = this.add.container(x, y, [card, label]);
+    let contents: Phaser.GameObjects.GameObject[] = [];
+    let w = THUMB_MAX_W, h = THUMB_MAX_H + 18; // reserve a bit for label
+
+    if (img) {
+      // stack image + label
+      img.y = -8;                       // nudge up a bit
+      label.y = (THUMB_MAX_H / 2) - 6;  // sits near bottom
+      contents = [img, label];
+      w = Math.max(THUMB_MAX_W, img.displayWidth);
+      h = Math.max(THUMB_MAX_H + 18, img.displayHeight + 18);
+    } else {
+      // fallback: colored card with label centered
+      const card = this.add.rectangle(0, 0, THUMB_MAX_W, THUMB_MAX_H, it.color)
+        .setOrigin(0.5)
+        .setStrokeStyle(2, 0x222222);
+      label.y = 0;
+      contents = [card, label];
+    }
+
+    // container is the draggable unit
+    const container = this.add.container(x, y, contents)
+      .setSize(w, h)          // hit area size
+      .setInteractive({ draggable: true, useHandCursor: true });
+
+    // store item + home
     (container as any).item = it;
     (container as any).home = new Phaser.Math.Vector2(x, y);
 
-    // Makes the container interactive + draggable
-    container.setSize(CARD_W, CARD_H); // defines its hit area
-    container.setInteractive({ draggable: true, useHandCursor: true });
-    this.input.setDraggable(container, true);
+    // match hit area tightly to visual bounds
+    // (container.setSize already defines input hit area; but ensure after scale)
+    if (container.input?.hitArea) {
+      // @ts-ignore
+      container.input.hitArea.setTo(0, 0, w, h);
+      container.input.localX = -w / 2; // center-based container
+      container.input.localY = -h / 2;
+    }
 
-    // drag handlers — move the container
+    // drag behavior
+    this.input.setDraggable(container, true);
     container.on('drag', (_p: any, dragX: number, dragY: number) => {
       container.x = dragX;
       container.y = dragY;
     });
-
     container.on('dragend', () => this.onDrop(container));
 
     // subtle pulse
@@ -261,26 +329,34 @@ private onDrop(card: Phaser.GameObjects.Container) {
   }
 }
 
-  private hitWhichBin(card: Phaser.GameObjects.Container): Category | null {
-    const world = new Phaser.Geom.Rectangle(card.x - 70, card.y - 32, 140, 64); // card bounds
-    const inBin = (cat: Category) => {
-      const panel = (this.bins[cat] as any).panel as Phaser.GameObjects.Rectangle;
-      const r = new Phaser.Geom.Rectangle(panel.x - panel.width / 2, panel.y - panel.height / 2, panel.width, panel.height);
-      return Phaser.Geom.Intersects.RectangleToRectangle(world, r);
-    };
-    if (inBin('recycle')) return 'recycle';
-    if (inBin('compost')) return 'compost';
-    if (inBin('landfill')) return 'landfill';
-    return null;
-    // Tip: for sprite art, consider using zone hit areas or Physics overlap.
-  }
+private hitWhichBin(card: Phaser.GameObjects.Container): Category | null {
+  const world = new Phaser.Geom.Rectangle(card.x - card.width/2, card.y - card.height/2, card.width, card.height);
 
-  private flashBin(cat: Category, success: boolean) {
-    const panel = (this.bins[cat] as any).panel as Phaser.GameObjects.Rectangle;
-    const original = panel.strokeColor;
-    panel.setStrokeStyle(3, success ? 0x38a169 : 0xe53e3e);
-    this.time.delayedCall(220, () => panel.setStrokeStyle(3, original));
-  }
+  const test = (img: Phaser.GameObjects.Image, cat: Category) => {
+    const r = new Phaser.Geom.Rectangle(
+      img.x - img.displayWidth/2,
+      img.y - img.displayHeight/2,
+      img.displayWidth,
+      img.displayHeight
+    );
+    return Phaser.Geom.Intersects.RectangleToRectangle(world, r) ? cat : null;
+  };
+
+  return (
+    test(this.bins.paper, 'paper') ||
+    test(this.bins.bottles_cans, 'bottles_cans') ||
+    test(this.bins.compost, 'compost') ||
+    test(this.bins.landfill, 'landfill') ||
+    null
+  );
+}
+
+private flashBin(cat: Category, success: boolean) {
+  const img = this.bins[cat]; // Image
+  const tint = success ? 0x7CFC00 : 0xFF4B4B;
+  this.tweens.add({ targets: img, duration: 90, yoyo: true, repeat: 1, tint });
+}
+
 
   // ---------- End / Restart ----------
   private updateHUD() {
