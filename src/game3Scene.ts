@@ -41,10 +41,10 @@ export default class Game3Scene extends Phaser.Scene {
         },
         {
             key: 'mosquito',
-            question: 'Is it okay to squish mosquitoes?',
+            question: 'Is it okay to squish all bugs when you see them?',
             correctAnswer: false,
             correctFeedback: 'Correct!\nNot all bugs are bad, many are helpful!',
-            incorrectFeedback: 'Incorrect!\nEven the mosquitoes have a purpose in the ecosystem.'
+             incorrectFeedback: 'Incorrect!\nNot all bugs are bad, many are helpful!'
         },
         {
             key: 'dog',
@@ -72,7 +72,13 @@ export default class Game3Scene extends Phaser.Scene {
 
         // Add background image
         const bg = this.add.image(W / 2, H / 2, "park");
-        bg.setDisplaySize(W, H);
+         bg.setDisplaySize(W, H);
+
+         this.add.text(W / 2, 60, "Click the image or press the button to get your question", {
+              fontSize: "23px",
+              color: "#000000",
+              backgroundColor: "rgba(255, 255, 255, 0.7)",
+         }).setOrigin(0.5);
 
         // Add pause/mute buttons
         addControlButtons(this);
@@ -82,25 +88,37 @@ export default class Game3Scene extends Phaser.Scene {
         const spacing = 150;
         const yPos = 400;
 
-        this.makeImageBtn(startX, yPos-25, "raccoon", () =>
+        this.makeImageBtn(startX, yPos-45, "raccoon", () =>
             this.askYesNoQuestion(0)
         );
 
-        this.makeImageBtn(startX + spacing, yPos-25, "wrapper", () =>
+        this.makeImageBtn(startX + spacing, yPos-45, "wrapper", () =>
             this.askYesNoQuestion(1)
         );
 
-        this.makeImageBtn(startX + spacing * 2, yPos-25, "appleTree", () =>
+        this.makeImageBtn(startX + spacing * 2, yPos-45, "appleTree", () =>
             this.askYesNoQuestion(2)
         );
 
-        this.makeImageBtn(startX + spacing * 3, yPos, "mosquito", () =>
+        this.makeImageBtn(startX + spacing * 3, yPos - 20, "mosquito", () =>
             this.askYesNoQuestion(3)
         );
 
-        this.makeImageBtn(startX + spacing * 4, yPos, "dog", () =>
+        this.makeImageBtn(startX + spacing * 4, yPos - 20, "dog", () =>
             this.askYesNoQuestion(4)
-        );
+         );
+         this.input.keyboard!.on('keydown-R', () => this.askYesNoQuestion(0));
+         this.input.keyboard!.on('keydown-W', () => this.askYesNoQuestion(1));
+         this.input.keyboard!.on('keydown-T', () => this.askYesNoQuestion(2));
+         this.input.keyboard!.on('keydown-B', () => this.askYesNoQuestion(3));
+         this.input.keyboard!.on('keydown-D', () => this.askYesNoQuestion(4));
+
+
+         this.add.text(startX, yPos + 25, "Raccoon(R)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+         this.add.text(startX + spacing, yPos + 25, "Wrapper(W)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+         this.add.text(startX + spacing * 2, yPos + 25, "Apple Tree(T)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+         this.add.text(startX + spacing * 3, yPos + 25, "Bugs(B)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+         this.add.text(startX + spacing * 4, yPos + 25, "Dog Poop(D)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
     }
 
     // Create interactive IMAGE buttons
@@ -158,7 +176,7 @@ export default class Game3Scene extends Phaser.Scene {
             wordWrap: { width: 600 }
         }).setOrigin(0.5);
 
-        const yesBtn = this.makeTextBtn(W / 2, H / 2 + 20, "Yes", () => {
+        const yesBtn = this.makeTextBtn(W / 2, H / 2 + 20, "Yes(Y)", () => {
             if (obj.correctAnswer === true) {
                 this.showAnswer(obj.correctFeedback);
             } else {
@@ -167,7 +185,7 @@ export default class Game3Scene extends Phaser.Scene {
             this.clearOptionsOnly(questionText, yesBtn, noBtn);
         });
 
-        const noBtn = this.makeTextBtn(W / 2, H / 2 + 80, "No", () => {
+        const noBtn = this.makeTextBtn(W / 2, H / 2 + 80, "No(N)", () => {
             if (obj.correctAnswer === false) {
                 this.showAnswer(obj.correctFeedback);
             } else {
@@ -175,6 +193,15 @@ export default class Game3Scene extends Phaser.Scene {
             }
             this.clearOptionsOnly(questionText, yesBtn, noBtn);
         });
+
+         this.input.keyboard!.removeAllListeners("keydown-Y");
+         this.input.keyboard!.removeAllListeners("keydown-N");
+         this.input.keyboard!.on("keydown-Y", () => {
+              yesBtn.emit("pointerdown");
+         });
+         this.input.keyboard!.on("keydown-N", () => {
+              noBtn.emit("pointerdown");
+         });
 
         this.activeObjects = [questionText, yesBtn, noBtn];
     }
