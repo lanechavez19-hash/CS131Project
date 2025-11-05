@@ -5,7 +5,7 @@ export default class Game1Scene extends Phaser.Scene {
   private currentAnswerText?: Phaser.GameObjects.Text;
   private activeObjects: Phaser.GameObjects.GameObject[] = [];
 
-  // --- TTS: state ---
+  // TTS: state
   private ttsEnabled = true;
   private ttsReady = false;
   private introSpoken = false;
@@ -45,7 +45,7 @@ export default class Game1Scene extends Phaser.Scene {
     // Add pause/mute buttons (already provided by your UI system)
     addControlButtons(this);
 
-    // === Image Buttons ===
+    // Image Buttons 
     const startX = W / 2 - 300;
     const spacing = 150;
     const yPos = 298;
@@ -71,7 +71,7 @@ export default class Game1Scene extends Phaser.Scene {
     this.add.text(startX + spacing * 3, yPos + 70, "Oil(O)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
     this.add.text(startX + spacing * 4, yPos + 70, "Leftover Food(L)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
     
-    // ===== TTS: setup & controls =====
+    // TTS: setup & controls
     this.initTTSOnceOnFirstGesture();
 
     this.input.keyboard!.on("keydown-T", () => {
@@ -81,8 +81,6 @@ export default class Game1Scene extends Phaser.Scene {
       this.speak(`Text to speech ${status}.`);
     });
     this.input.keyboard!.on("keydown-M", () => this.stopSpeaking());
-
-    // ===== END TTS =====
   }
 
   // 🔹 3. Helper function: image button
@@ -295,7 +293,7 @@ export default class Game1Scene extends Phaser.Scene {
       }
     }
 
-    // 🔊 Speak intro ONCE only, right here
+    // Speak intro ONCE only, right here
     if (!this.introSpoken) {
       this.introSpoken = true;
       this.speak(
