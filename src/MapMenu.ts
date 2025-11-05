@@ -1,7 +1,4 @@
 // src/MapMenu.ts
-// DOM-based map menu system for Phaser game launcher
-// ---------------------------------------------------
-
 export type SceneNode = {
   id: string;
   name: string;
@@ -10,24 +7,38 @@ export type SceneNode = {
   sceneKey: string;
 };
 
-/**
- * MapMenu handles displaying a DOM-based map where each node
- * launches a Phaser scene. It supports mouse clicks and arrow key navigation.
- */
 export default class MapMenu {
   private nodes: SceneNode[];
   private currentIndex = 0;
 
   constructor(nodes: SceneNode[]) {
     this.nodes = nodes;
+    this.injectStyles();
     this.buildDOM();
     this.attachKeyboardControls();
     this.fadeIn();
   }
 
+  /** Inject CSS styles for selected marker glow */
+  private injectStyles() {
+    const style = document.createElement("style");
+    style.textContent = `
+      .map-marker {
+        transition: all 0.25s ease, box-shadow 0.3s ease;
+      }
+
+      .map-marker.selected {
+        box-shadow: 0 0 15px 5px rgba(24, 180, 58, 0.8);
+        background-color: #0dc535ff !important;
+        transform: translate(-50%, -50%) scale(1.15);
+        z-index: 10;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   /** Builds the DOM structure for the map and markers */
   private buildDOM() {
-    // Create container if not already in HTML
     let mapMenu = document.getElementById("map-menu");
     if (!mapMenu) {
       mapMenu = document.createElement("div");
@@ -35,52 +46,49 @@ export default class MapMenu {
       document.body.appendChild(mapMenu);
     }
 
-    // --- Styling to center and layer above Phaser ---
+    // Full-screen transparent overlay
     Object.assign(mapMenu.style, {
-  position: "absolute",
-  top: "57%",
-  left: "53%",
-  transform: "translate(-50%, -50%)",
-  width: "850px",
-  height: "450px",
-  overflow: "hidden",
-  display: "none",
-  zIndex: "1000",
-  backgroundColor: "transparent",
-  opacity: "0",
-  transition: "opacity 0.5s ease",
-  border: "none",          // 👈 removes teal border
-  boxShadow: "none",       // 👈 removes glow
-  borderRadius: "6px",
-  padding: "0",
-  boxSizing: "border-box",
-  pointerEvents: "auto",
-});
+      position: "absolute",
+      top: "0",
+      left: "0",
+      width: "100%",
+      height: "100%",
+      display: "none",
+      zIndex: "1000",
+      backgroundColor: "transparent",
+      opacity: "0",
+      transition: "opacity 0.5s ease",
+      pointerEvents: "auto",
+    });
 
-
-    mapMenu.innerHTML = `
-    <img id="map-image" src="assets/images/citymap.jpeg" alt="Game Map"
-    style="width:100%;height:100%;object-fit:fill;position:absolute;top:0;left:0;z-index:0;">
-    <div id="map-markers" style="position:relative;width:100%;height:100%;"></div>
-    `;
-
+    mapMenu.innerHTML = `<div id="map-markers" style="position:relative;width:100%;height:100%;"></div>`;
     const markersContainer = document.getElementById("map-markers")!;
     markersContainer.innerHTML = "";
+
+    // Compute right-side positioning
+    const screenWidth = window.innerWidth;
+    const rightX = screenWidth * 0.70; // shifted slightly left from the edge
+    const baseY = window.innerHeight * 0.4; // vertical center
+    const spacing = 130; // <-- reduced spacing (was 160)
 
     this.nodes.forEach((node, index) => {
       const marker = document.createElement("button");
       marker.className = "map-marker";
       marker.style.position = "absolute";
-      marker.style.left = `${node.x}px`;
-      marker.style.top = `${node.y}px`;
+      marker.style.left = `${rightX}px`;
+      marker.style.top = `${baseY + index * spacing}px`;
       marker.style.transform = "translate(-50%, -50%)";
-      marker.style.borderRadius = "50%";
-      marker.style.border = "2px solid #fff";
+      marker.style.width = "380px"; // consistent width
+      marker.style.height = "100px"; // consistent height
+      marker.style.borderRadius = "20px";
+      marker.style.border = "3px solid #fff";
       marker.style.backgroundColor = "#007a7a";
       marker.style.color = "#fff";
-      marker.style.padding = "10px 16px";
+      marker.style.fontSize = "1.6rem";
+      marker.style.fontWeight = "600";
       marker.style.cursor = "pointer";
-      marker.style.transition = "all 0.2s";
+      marker.style.transition = "all 0.25s ease";
+      marker.style.boxShadow = "0 0 12px rgba(0,0,0,0.25)";
       marker.textContent = node.name;
       marker.dataset.index = String(index);
 
@@ -98,11 +106,39 @@ export default class MapMenu {
       markersContainer.appendChild(marker);
     });
 
+    // --- Add ProfDavis.png image to the left of the buttons ---
+
+    // Calculate vertical bounds of buttons
+    const topButtonY = baseY; // center of top button
+    const bottomButtonY = baseY + (this.nodes.length - 1) * spacing; // center of bottom button
+
+    // Since buttons are centered with translate(-50%, -50%), adjust to edges:
+    const buttonHeight = 100;
+    const topOfTopButton = topButtonY - buttonHeight / 2;
+    const bottomOfBottomButton = bottomButtonY + buttonHeight / 2;
+
+    const imageHeight = bottomOfBottomButton - topOfTopButton;
+
+    const img = document.createElement("img");
+    img.src = "assets/images/ProfDavis.png"; // relative to public folder
+    img.alt = "Prof Davis";
+    img.style.position = "absolute";
+    // Position image to the left of the buttons (half button width + 20px margin)
+    const imageLeftMargin = 300; // pixels to shift left from the buttons
+    img.style.left = `${rightX - 380 / 2 - imageLeftMargin}px`;
+    img.style.top = `${topOfTopButton}px`;
+    img.style.height = `${imageHeight}px`;
+    img.style.width = "auto"; // keep aspect ratio
+    img.style.objectFit = "contain";
+    img.style.userSelect = "none";
+    img.style.pointerEvents = "none"; // so clicks go through to buttons
+
+    markersContainer.appendChild(img);
+
     // Select the first marker initially
     const firstMarker = markersContainer.querySelector(".map-marker") as HTMLElement | null;
     if (firstMarker) firstMarker.classList.add("selected");
 
-    // Show map after it's built
     mapMenu.style.display = "block";
   }
 
@@ -111,7 +147,7 @@ export default class MapMenu {
     const mapMenu = document.getElementById("map-menu");
     if (mapMenu) {
       setTimeout(() => {
-        mapMenu!.style.opacity = "1";
+        mapMenu.style.opacity = "1";
       }, 50);
     }
   }
@@ -125,11 +161,9 @@ export default class MapMenu {
       markers[this.currentIndex].classList.remove("selected");
 
       switch (e.key) {
-        case "ArrowRight":
         case "ArrowDown":
           this.currentIndex = (this.currentIndex + 1) % markers.length;
           break;
-        case "ArrowLeft":
         case "ArrowUp":
           this.currentIndex = (this.currentIndex - 1 + markers.length) % markers.length;
           break;
@@ -137,6 +171,7 @@ export default class MapMenu {
         case " ":
           markers[this.currentIndex].click();
           break;
+        // Ignore left and right arrows now (do nothing)
       }
 
       markers[this.currentIndex].classList.add("selected");
@@ -151,10 +186,8 @@ export default class MapMenu {
       setTimeout(() => (mapMenu.style.display = "none"), 500);
     }
 
-    // Ensure the Phaser game object is accessible from window
     const game = (window as any).game;
     if (game && game.scene) {
-      // Stop the PlayScene first, then start the new scene
       if (game.scene.isActive("Play")) game.scene.stop("Play");
       game.scene.start(sceneKey);
     } else {
