@@ -5,6 +5,12 @@ export default class Game1Scene extends Phaser.Scene {
   private currentAnswerText?: Phaser.GameObjects.Text;
   private activeObjects: Phaser.GameObjects.GameObject[] = [];
 
+  // --- TTS: state ---
+  private ttsEnabled = true;
+  private ttsReady = false;
+  private introSpoken = false;
+  private ttsVoice?: SpeechSynthesisVoice;
+
   constructor() {
     super("Game1");
   }
@@ -64,7 +70,19 @@ export default class Game1Scene extends Phaser.Scene {
     this.add.text(startX + spacing * 2, yPos + 70, "Fushable Wipes(F)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
     this.add.text(startX + spacing * 3, yPos + 70, "Oil(O)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
     this.add.text(startX + spacing * 4, yPos + 70, "Leftover Food(L)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+    
+    // ===== TTS: setup & controls =====
+    this.initTTSOnceOnFirstGesture();
 
+    this.input.keyboard!.on("keydown-T", () => {
+      this.ttsEnabled = !this.ttsEnabled;
+      this.stopSpeaking();
+      const status = this.ttsEnabled ? "on" : "off";
+      this.speak(`Text to speech ${status}.`);
+    });
+    this.input.keyboard!.on("keydown-M", () => this.stopSpeaking());
+
+    // ===== END TTS =====
   }
 
   // 🔹 3. Helper function: image button
@@ -104,14 +122,15 @@ export default class Game1Scene extends Phaser.Scene {
         backgroundColor: "rgba(255, 255, 255, 0.7)",
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
+      this.speak(qText.text);
 
       yesBtn = this.makeTextBtn(W / 2, H / 2 - 40, "Yes(Y)", () => {
-        this.showAnswer("Incorrect❌\n You should NOT flush paper towels down your toilet.\nIt can clog your pipes!");
+        this.showAnswer("Incorrect\n You should NOT flush paper towels down your toilet.\nIt can clog your pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
       noBtn = this.makeTextBtn(W / 2, H / 2 + 10, "No(N)", () => {
-        this.showAnswer("Correct✅\nYou should NOT flush paper towels down your toilet.\nIt can clog your pipes!");
+        this.showAnswer("Correct\nYou should NOT flush paper towels down your toilet.\nIt can clog your pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
     } 
@@ -122,14 +141,15 @@ export default class Game1Scene extends Phaser.Scene {
         backgroundColor: "rgba(255, 255, 255, 0.7)",
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
+      this.speak(qText.text);
 
       yesBtn = this.makeTextBtn(W / 2, H / 2 - 40, "Yes(Y)", () => {
-        this.showAnswer("Correct✅\nWater is safe to pour down the sink!\nJust be careful not to waste it.");
+        this.showAnswer("Correct\nWater is safe to pour down the sink!\nJust be careful not to waste it.");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
       noBtn = this.makeTextBtn(W / 2, H / 2 + 10, "No(N)", () => {
-        this.showAnswer("Incorrect❌\nWater is safe to pour down the sink!\nJust be careful not to waste it.");
+        this.showAnswer("Incorrect\nWater is safe to pour down the sink!\nJust be careful not to waste it.");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
     } 
@@ -140,14 +160,15 @@ export default class Game1Scene extends Phaser.Scene {
         backgroundColor: "rgba(255, 255, 255, 0.7)",
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
+      this.speak(qText.text);
 
       yesBtn = this.makeTextBtn(W / 2, H / 2 - 40, "Yes(Y)", () => {
-        this.showAnswer("Incorrect❌\nYou should NOT put flushable wipes in the toilet.\nThey can clog pipes!");
+        this.showAnswer("Incorrect\nYou should NOT put flushable wipes in the toilet.\nThey can clog pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
       noBtn = this.makeTextBtn(W / 2, H / 2 + 10, "No(N)", () => {
-        this.showAnswer("Correct✅\nYou should NOT put flushable wipes in the toilet.\nThey can clog pipes!");
+        this.showAnswer("Correct\nYou should NOT put flushable wipes in the toilet.\nThey can clog pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
     }
@@ -158,14 +179,15 @@ export default class Game1Scene extends Phaser.Scene {
         backgroundColor: "rgba(255, 255, 255, 0.7)",
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
+      this.speak(qText.text);
 
       yesBtn = this.makeTextBtn(W / 2, H / 2 - 40, "Yes(Y)", () => {
-        this.showAnswer("Incorrect❌\nYou should NEVER pour grease or oil down the drain.\nIt will clog your sewer pipes!");
+        this.showAnswer("Incorrect\nYou should NEVER pour grease or oil down the drain.\nIt will clog your sewer pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
       noBtn = this.makeTextBtn(W / 2, H / 2 + 10, "No(N)", () => {
-        this.showAnswer("Correct✅\nYou should NEVER pour grease or oil down the drain.\nIt will clog your sewer pipes!");
+        this.showAnswer("Correct\nYou should NEVER pour grease or oil down the drain.\nIt will clog your sewer pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
     } 
@@ -177,14 +199,15 @@ export default class Game1Scene extends Phaser.Scene {
         padding: { x: 10, y: 5 },
         wordWrap: { width: 600 },
       }).setOrigin(0.5);
+      this.speak(qText.text);
 
       yesBtn = this.makeTextBtn(W / 2, H / 2 - 40, "Yes(Y)", () => {
-        this.showAnswer("Correct✅\nYou should NOT put leftover food down the sink.\nIt can clog the pipes!");
+        this.showAnswer("Correct\nYou should NOT put leftover food down the sink.\nIt can clog the pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
 
       noBtn = this.makeTextBtn(W / 2, H / 2 + 10, "No(N)", () => {
-        this.showAnswer("Incorrect❌\nYou should NOT put leftover food down the sink.\nIt can clog the pipes!");
+        this.showAnswer("Incorrect\nYou should NOT put leftover food down the sink.\nIt can clog the pipes!");
         this.clearOptionsOnly(qText, yesBtn, noBtn);
       });
     } 
@@ -224,6 +247,8 @@ export default class Game1Scene extends Phaser.Scene {
   }
 
   private clearExistingQuestion() {
+    this.stopSpeaking(); // TTS: cancel current utterance
+
     this.activeObjects.forEach(o => o.destroy());
     this.activeObjects = [];
 
@@ -246,5 +271,61 @@ export default class Game1Scene extends Phaser.Scene {
       padding: { x: 10, y: 5 },
       wordWrap: { width: 600 },
     }).setOrigin(0.5);
+
+    this.speak(text, { rate: 1.05 }); // TTS: read the feedback
+  }
+
+  private initTTSOnceOnFirstGesture() {
+  const enable = () => {
+    if (this.ttsReady) return;
+    this.ttsReady = true;
+
+    // Pick voices (unchanged)
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      const synth = window.speechSynthesis;
+      const pickVoice = () => {
+        const voices = synth.getVoices();
+        this.ttsVoice = voices.find(v => /en/i.test(v.lang)) || voices[0];
+      };
+      pickVoice();
+      // @ts-ignore
+      if (typeof window.speechSynthesis.onvoiceschanged !== "undefined") {
+        // @ts-ignore
+        window.speechSynthesis.onvoiceschanged = pickVoice;
+      }
+    }
+
+    // 🔊 Speak intro ONCE only, right here
+    if (!this.introSpoken) {
+      this.introSpoken = true;
+      this.speak(
+        "Welcome to Pretreatment Game. Press P, W, F, O, or L to choose an item. Use Y for Yes, N for No. Press T to toggle narration."
+      );
+    }
+  };
+
+  // These fire only once; whichever comes first enables TTS and speaks intro
+  this.input.once("pointerdown", enable);
+  this.input.keyboard?.once("keydown", enable);
+}
+
+
+  private speak(text: string, opts?: { rate?: number; pitch?: number }) {
+    if (!this.ttsEnabled || !this.ttsReady) return;
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+    const synth = window.speechSynthesis;
+    // Guard: if an old utterance is still going, let this queue after it
+    const u = new SpeechSynthesisUtterance(text);
+    if (this.ttsVoice) u.voice = this.ttsVoice;
+    u.rate = opts?.rate ?? 1.0;   // 0.1–10
+    u.pitch = opts?.pitch ?? 1.0; // 0–2
+    synth.speak(u);
+  }
+
+  private stopSpeaking() {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
   }
 }
