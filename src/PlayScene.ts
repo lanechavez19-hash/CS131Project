@@ -13,8 +13,8 @@ export default class PlayScene extends Phaser.Scene {
     const { width: W, height: H } = this.scale;
 
     this.add.text(W / 2, H * 0.15, "Select a Mission on the Map", {
-      fontSize: "32px",
-      color: "#ffffff"
+      fontSize: "46px",
+      color: "#050505ff"
     }).setOrigin(0.5);
 
     
@@ -27,9 +27,9 @@ export default class PlayScene extends Phaser.Scene {
 
     // Define the nodes that appear on the map
     const nodes: SceneNode[] = [
-    { id: "forest", name: "Pretreatment", x: 200, y: 250, sceneKey: "Game1" },
-    { id: "river",  name: "Recycling",   x: 400, y: 300, sceneKey: "Game2" },
-    { id: "camp",   name: "Urban Wildlife", x: 600, y: 320, sceneKey: "Game3" }
+    { id: "forest", name: "Pretreatment", sceneKey: "Game1" },
+    { id: "river",  name: "Recycling", sceneKey: "Game2" },
+    { id: "camp",   name: "Urban Wildlife", sceneKey: "Game3" }
     ];
 
     // Build the map menu (the image and clickable markers)
