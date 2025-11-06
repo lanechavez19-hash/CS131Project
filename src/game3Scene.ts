@@ -168,7 +168,7 @@ export default class Game3Scene extends Phaser.Scene {
 
         const obj = this.campObjects[index];
 
-        const questionText = this.add.text(W / 2, H / 2 - 50, obj.question, {
+        const questionText = this.add.text(W / 2, H / 2 - 100, obj.question, {
             fontSize: "26px",
             color: "#000000",
             backgroundColor: "#eeeeee",
@@ -176,7 +176,7 @@ export default class Game3Scene extends Phaser.Scene {
             wordWrap: { width: 600 }
         }).setOrigin(0.5);
 
-        const yesBtn = this.makeTextBtn(W / 2, H / 2 + 20, "Yes(Y)", () => {
+        const yesBtn = this.makeTextBtn(W / 2, H / 2 + -30, "Yes(Y)", () => {
             if (obj.correctAnswer === true) {
                 this.showAnswer(obj.correctFeedback);
             } else {
@@ -185,7 +185,7 @@ export default class Game3Scene extends Phaser.Scene {
             this.clearOptionsOnly(questionText, yesBtn, noBtn);
         });
 
-        const noBtn = this.makeTextBtn(W / 2, H / 2 + 80, "No(N)", () => {
+        const noBtn = this.makeTextBtn(W / 2, H / 2 + 30, "No(N)", () => {
             if (obj.correctAnswer === false) {
                 this.showAnswer(obj.correctFeedback);
             } else {
@@ -234,9 +234,11 @@ export default class Game3Scene extends Phaser.Scene {
             this.currentAnswerText.destroy();
         }
 
-        this.currentAnswerText = this.add.text(W / 2, H / 2 + 80, text, {
+        this.currentAnswerText = this.add.text(W / 2, H / 2, text, {
             fontSize: "24px",
             color: "#000000",
+            backgroundColor: "#eeeeee",  // Added white/light gray background
+            padding: { x: 10, y: 5 },     // Added padding for spacing
             wordWrap: { width: 600 },
             align: "center"
         }).setOrigin(0.5);
