@@ -77,7 +77,7 @@ export default class Game3Scene extends Phaser.Scene {
          this.add.text(W / 2, 60, "Click the image or press the button to get your question", {
               fontSize: "23px",
               color: "#000000",
-              backgroundColor: "rgba(255, 255, 255, 0.7)",
+             backgroundColor: "#ffffff",
          }).setOrigin(0.5);
 
         // Add pause/mute buttons
@@ -169,7 +169,7 @@ export default class Game3Scene extends Phaser.Scene {
         const obj = this.campObjects[index];
 
         const questionText = this.add.text(W / 2, H / 2 - 100, obj.question, {
-            fontSize: "26px",
+            fontSize: "24px",
             color: "#000000",
             backgroundColor: "#eeeeee",
             padding: { x: 10, y: 5 },
