@@ -15,9 +15,8 @@ export default class PreloadScene extends Phaser.Scene {
 
     // Load audio
     this.load.audio("bgm", "./assets/audio/Test.mp3");
+    // Load images for PlayScene
 
-    // Example: load images too
-    // this.load.image("frog", "assets/images/frog.png");
   }
 
   create() {

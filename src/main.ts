@@ -29,5 +29,3 @@ const game = new Phaser.Game({
   ]
 });
 
-// Expose game to MapMenu
-(window as any).game = game;
