@@ -83,9 +83,8 @@ export default class Game3Scene extends Phaser.Scene {
         this.add.text(W / 2, 60, "Click the image or press the button to get your question", {
             fontSize: "23px",
             color: "#000000",
-            backgroundColor: "rgba(255, 255, 255, 0.7)",
-            /* element.style.textShadow = "-1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black";
-*/
+            fontStyle: "bold",
+            backgroundColor: "rgba(238, 238, 238, 0.6)",
         }).setOrigin(0.5);
 
         // Add pause/mute buttons
@@ -96,23 +95,23 @@ export default class Game3Scene extends Phaser.Scene {
         const spacing = 150;
         const yPos = 400;
 
-        this.makeImageBtn(startX, yPos - 45, "raccoon", () =>
+        this.makeImageBtn(startX, yPos - 55, "raccoon", () =>
             this.askYesNoQuestion(0)
         );
 
-        this.makeImageBtn(startX + spacing, yPos - 45, "wrapper", () =>
+        this.makeImageBtn(startX + spacing, yPos - 55, "wrapper", () =>
             this.askYesNoQuestion(1)
         );
 
-        this.makeImageBtn(startX + spacing * 2, yPos - 45, "appleTree", () =>
+        this.makeImageBtn(startX + spacing * 2, yPos - 55, "appleTree", () =>
             this.askYesNoQuestion(2)
         );
 
-        this.makeImageBtn(startX + spacing * 3, yPos - 20, "mosquito", () =>
+        this.makeImageBtn(startX + spacing * 3, yPos - 30, "mosquito", () =>
             this.askYesNoQuestion(3)
         );
 
-        this.makeImageBtn(startX + spacing * 4, yPos - 20, "dog", () =>
+        this.makeImageBtn(startX + spacing * 4, yPos - 30, "dog", () =>
             this.askYesNoQuestion(4)
         );
 
@@ -132,11 +131,11 @@ export default class Game3Scene extends Phaser.Scene {
         });
 
         // Labels under buttons
-        this.add.text(startX, yPos + 25, "Raccoon(R)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-        this.add.text(startX + spacing, yPos + 25, "Wrapper(W)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-        this.add.text(startX + spacing * 2, yPos + 25, "Apple Tree(A)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-        this.add.text(startX + spacing * 3, yPos + 25, "Bugs(B)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-        this.add.text(startX + spacing * 4, yPos + 25, "Dog Poop(D)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+        this.add.text(startX, yPos + 25, "Raccoon(R)", { fontSize: "17px", fontStyle: "bold", color: "#000" }).setOrigin(0.5);
+        this.add.text(startX + spacing, yPos + 25, "Wrapper(W)", { fontSize: "17px", fontStyle: "bold", color: "#000" }).setOrigin(0.5);
+        this.add.text(startX + spacing * 2, yPos + 25, "Apple Tree(A)", { fontSize: "17px", fontStyle: "bold", color: "#000" }).setOrigin(0.5);
+        this.add.text(startX + spacing * 3, yPos + 25, "Bugs(B)", { fontSize: "17px", fontStyle: "bold", color: "#000" }).setOrigin(0.5);
+        this.add.text(startX + spacing * 4, yPos + 25, "Dog Poop(D)", { fontSize: "17px", fontStyle: "bold", color: "#000" }).setOrigin(0.5);
 
         // TTS: setup & controls
         this.initTTSOnceOnFirstGesture();
@@ -151,7 +150,7 @@ export default class Game3Scene extends Phaser.Scene {
     ): Phaser.GameObjects.Image {
         const btn = this.add.image(x, y, imageKey)
             .setOrigin(0.5)
-            .setScale(0.3)
+            .setDisplaySize(150, 150) // Set a fixed width and height
             .setInteractive({ useHandCursor: true })
             .on("pointerdown", callback)
             .on("pointerover", () => btn.setTint(0xdddddd))
@@ -170,14 +169,15 @@ export default class Game3Scene extends Phaser.Scene {
         const btn = this.add.text(x, y, label, {
             color: "#000000",
             fontSize: "24px",
-            backgroundColor: "rgba(255, 255, 255, 0.7)",
+            fontStyle: "bold",
+            backgroundColor: "rgba(238, 238, 238, 0.6)",
             padding: { x: 10, y: 5 },
         })
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true })
             .on("pointerdown", callback)
             .on("pointerover", () => btn.setStyle({ backgroundColor: "#dddddd" }))
-            .on("pointerout", () => btn.setStyle({ backgroundColor: "#ffffff" }));
+            .on("pointerout", () => btn.setStyle({ backgroundColor: "rgba(238, 238, 238, 0.6)" }));
 
         return btn;
     }
@@ -192,7 +192,8 @@ export default class Game3Scene extends Phaser.Scene {
         const questionText = this.add.text(W / 2, H / 2 - 100, obj.question, {
             fontSize: "24px",
             color: "#000000",
-            backgroundColor: "rgba(255, 255, 255, 0.7)",
+            fontStyle: "bold",
+            backgroundColor: "rgba(238, 238, 238, 0.6)",
             padding: { x: 10, y: 5 },
             wordWrap: { width: 600 }
         }).setOrigin(0.5);
@@ -260,9 +261,10 @@ export default class Game3Scene extends Phaser.Scene {
         }
 
         this.currentAnswerText = this.add.text(W / 2, H / 2, text, {
-            fontSize: "22px",
+            fontSize: "24px",
             color: "#000000",
-            backgroundColor: "rgba(255, 255, 255, 0.7)",
+            fontStyle: "bold",
+            backgroundColor: "rgba(238, 238, 238, 0.6)",
             padding: { x: 10, y: 5 },
             wordWrap: { width: 600 },
             align: "center"
