@@ -13,6 +13,12 @@ export default class Game3Scene extends Phaser.Scene {
     private currentAnswerText?: Phaser.GameObjects.Text;
     private activeObjects: Phaser.GameObjects.GameObject[] = [];
 
+    // TTS: state
+    private ttsEnabled = true;
+    private ttsReady = false;
+    private introSpoken = false;
+    private ttsVoice?: SpeechSynthesisVoice;
+
     constructor() {
         super("Game3");
     }
@@ -44,7 +50,7 @@ export default class Game3Scene extends Phaser.Scene {
             question: 'Is it okay to squish all bugs when you see them?',
             correctAnswer: false,
             correctFeedback: 'Correct!\nNot all bugs are bad, many are helpful!',
-             incorrectFeedback: 'Incorrect!\nNot all bugs are bad, many are helpful!'
+            incorrectFeedback: 'Incorrect!\nNot all bugs are bad, many are helpful!'
         },
         {
             key: 'dog',
@@ -72,13 +78,15 @@ export default class Game3Scene extends Phaser.Scene {
 
         // Add background image
         const bg = this.add.image(W / 2, H / 2, "park");
-         bg.setDisplaySize(W, H);
+        bg.setDisplaySize(W, H);
 
-         this.add.text(W / 2, 60, "Click the image or press the button to get your question", {
-              fontSize: "23px",
-              color: "#000000",
-             backgroundColor: "#ffffff",
-         }).setOrigin(0.5);
+        this.add.text(W / 2, 60, "Click the image or press the button to get your question", {
+            fontSize: "23px",
+            color: "#000000",
+            backgroundColor: "rgba(255, 255, 255, 0.7)",
+            /* element.style.textShadow = "-1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black";
+*/
+        }).setOrigin(0.5);
 
         // Add pause/mute buttons
         addControlButtons(this);
@@ -88,15 +96,15 @@ export default class Game3Scene extends Phaser.Scene {
         const spacing = 150;
         const yPos = 400;
 
-        this.makeImageBtn(startX, yPos-45, "raccoon", () =>
+        this.makeImageBtn(startX, yPos - 45, "raccoon", () =>
             this.askYesNoQuestion(0)
         );
 
-        this.makeImageBtn(startX + spacing, yPos-45, "wrapper", () =>
+        this.makeImageBtn(startX + spacing, yPos - 45, "wrapper", () =>
             this.askYesNoQuestion(1)
         );
 
-        this.makeImageBtn(startX + spacing * 2, yPos-45, "appleTree", () =>
+        this.makeImageBtn(startX + spacing * 2, yPos - 45, "appleTree", () =>
             this.askYesNoQuestion(2)
         );
 
@@ -106,19 +114,32 @@ export default class Game3Scene extends Phaser.Scene {
 
         this.makeImageBtn(startX + spacing * 4, yPos - 20, "dog", () =>
             this.askYesNoQuestion(4)
-         );
-         this.input.keyboard!.on('keydown-R', () => this.askYesNoQuestion(0));
-         this.input.keyboard!.on('keydown-W', () => this.askYesNoQuestion(1));
-         this.input.keyboard!.on('keydown-T', () => this.askYesNoQuestion(2));
-         this.input.keyboard!.on('keydown-B', () => this.askYesNoQuestion(3));
-         this.input.keyboard!.on('keydown-D', () => this.askYesNoQuestion(4));
+        );
 
+        // Keyboard shortcuts for selecting items
+        this.input.keyboard!.on('keydown-R', () => this.askYesNoQuestion(0));
+        this.input.keyboard!.on('keydown-W', () => this.askYesNoQuestion(1));
+        this.input.keyboard!.on('keydown-A', () => this.askYesNoQuestion(2));
+        this.input.keyboard!.on('keydown-B', () => this.askYesNoQuestion(3));
+        this.input.keyboard!.on('keydown-D', () => this.askYesNoQuestion(4));
 
-         this.add.text(startX, yPos + 25, "Raccoon(R)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-         this.add.text(startX + spacing, yPos + 25, "Wrapper(W)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-         this.add.text(startX + spacing * 2, yPos + 25, "Apple Tree(T)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-         this.add.text(startX + spacing * 3, yPos + 25, "Bugs(B)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-         this.add.text(startX + spacing * 4, yPos + 25, "Dog Poop(D)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+        // TTS toggle only
+        this.input.keyboard!.on('keydown-T', () => {
+            this.ttsEnabled = !this.ttsEnabled;
+            this.stopSpeaking();
+            const status = this.ttsEnabled ? "on" : "off";
+            this.speak(`Text to speech ${status}.`);
+        });
+
+        // Labels under buttons
+        this.add.text(startX, yPos + 25, "Raccoon(R)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+        this.add.text(startX + spacing, yPos + 25, "Wrapper(W)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+        this.add.text(startX + spacing * 2, yPos + 25, "Apple Tree(A)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+        this.add.text(startX + spacing * 3, yPos + 25, "Bugs(B)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+        this.add.text(startX + spacing * 4, yPos + 25, "Dog Poop(D)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+
+        // TTS: setup & controls
+        this.initTTSOnceOnFirstGesture();
     }
 
     // Create interactive IMAGE buttons
@@ -130,7 +151,7 @@ export default class Game3Scene extends Phaser.Scene {
     ): Phaser.GameObjects.Image {
         const btn = this.add.image(x, y, imageKey)
             .setOrigin(0.5)
-            .setScale(0.3) // Adjust scale if images are too big/small (e.g., 0.5 for half size)
+            .setScale(0.3)
             .setInteractive({ useHandCursor: true })
             .on("pointerdown", callback)
             .on("pointerover", () => btn.setTint(0xdddddd))
@@ -149,7 +170,7 @@ export default class Game3Scene extends Phaser.Scene {
         const btn = this.add.text(x, y, label, {
             color: "#000000",
             fontSize: "24px",
-            backgroundColor: "#ffffff",
+            backgroundColor: "rgba(255, 255, 255, 0.7)",
             padding: { x: 10, y: 5 },
         })
             .setOrigin(0.5)
@@ -171,12 +192,14 @@ export default class Game3Scene extends Phaser.Scene {
         const questionText = this.add.text(W / 2, H / 2 - 100, obj.question, {
             fontSize: "24px",
             color: "#000000",
-            backgroundColor: "#eeeeee",
+            backgroundColor: "rgba(255, 255, 255, 0.7)",
             padding: { x: 10, y: 5 },
             wordWrap: { width: 600 }
         }).setOrigin(0.5);
 
-        const yesBtn = this.makeTextBtn(W / 2, H / 2 + -30, "Yes(Y)", () => {
+        this.speak(obj.question); // TTS: read the question
+
+        const yesBtn = this.makeTextBtn(W / 2, H / 2 - 30, "Yes(Y)", () => {
             if (obj.correctAnswer === true) {
                 this.showAnswer(obj.correctFeedback);
             } else {
@@ -194,14 +217,14 @@ export default class Game3Scene extends Phaser.Scene {
             this.clearOptionsOnly(questionText, yesBtn, noBtn);
         });
 
-         this.input.keyboard!.removeAllListeners("keydown-Y");
-         this.input.keyboard!.removeAllListeners("keydown-N");
-         this.input.keyboard!.on("keydown-Y", () => {
-              yesBtn.emit("pointerdown");
-         });
-         this.input.keyboard!.on("keydown-N", () => {
-              noBtn.emit("pointerdown");
-         });
+        this.input.keyboard!.removeAllListeners("keydown-Y");
+        this.input.keyboard!.removeAllListeners("keydown-N");
+        this.input.keyboard!.on("keydown-Y", () => {
+            yesBtn.emit("pointerdown");
+        });
+        this.input.keyboard!.on("keydown-N", () => {
+            noBtn.emit("pointerdown");
+        });
 
         this.activeObjects = [questionText, yesBtn, noBtn];
     }
@@ -218,6 +241,8 @@ export default class Game3Scene extends Phaser.Scene {
     }
 
     private clearExistingQuestion(): void {
+        this.stopSpeaking(); // TTS: cancel current utterance
+
         this.activeObjects.forEach(obj => obj.destroy());
         this.activeObjects = [];
 
@@ -235,12 +260,67 @@ export default class Game3Scene extends Phaser.Scene {
         }
 
         this.currentAnswerText = this.add.text(W / 2, H / 2, text, {
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#000000",
-            backgroundColor: "#eeeeee",  // Added white/light gray background
-            padding: { x: 10, y: 5 },     // Added padding for spacing
+            backgroundColor: "rgba(255, 255, 255, 0.7)",
+            padding: { x: 10, y: 5 },
             wordWrap: { width: 600 },
             align: "center"
         }).setOrigin(0.5);
+
+        this.speak(text, { rate: 1.05 }); // TTS: read the feedback
+    }
+
+    // TTS: Initialize once on first gesture
+    private initTTSOnceOnFirstGesture() {
+        const enable = () => {
+            if (this.ttsReady) return;
+            this.ttsReady = true;
+
+            // Pick voices
+            if (typeof window !== "undefined" && "speechSynthesis" in window) {
+                const synth = window.speechSynthesis;
+                const pickVoice = () => {
+                    const voices = synth.getVoices();
+                    this.ttsVoice = voices.find(v => /en/i.test(v.lang)) || voices[0];
+                };
+                pickVoice();
+                // @ts-ignore
+                if (typeof window.speechSynthesis.onvoiceschanged !== "undefined") {
+                    // @ts-ignore
+                    window.speechSynthesis.onvoiceschanged = pickVoice;
+                }
+            }
+
+            // Speak intro ONCE only
+            if (!this.introSpoken) {
+                this.introSpoken = true;
+                this.speak(
+                    "Welcome to Urban Wildlife Game. Press R, W, A, B, or D to choose an item. Use Y for Yes, N for No. Press T to toggle narration."
+                );
+            }
+        };
+
+        // These fire only once; whichever comes first enables TTS and speaks intro
+        this.input.once("pointerdown", enable);
+        this.input.keyboard?.once("keydown", enable);
+    }
+
+    private speak(text: string, opts?: { rate?: number; pitch?: number }) {
+        if (!this.ttsEnabled || !this.ttsReady) return;
+        if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+        const synth = window.speechSynthesis;
+        const u = new SpeechSynthesisUtterance(text);
+        if (this.ttsVoice) u.voice = this.ttsVoice;
+        u.rate = opts?.rate ?? 1.0;   // 0.1–10
+        u.pitch = opts?.pitch ?? 1.0; // 0–2
+        synth.speak(u);
+    }
+
+    private stopSpeaking() {
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+            window.speechSynthesis.cancel();
+        }
     }
 }
