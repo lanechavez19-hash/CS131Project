@@ -31,6 +31,9 @@ export default class Game2Scene extends Phaser.Scene {
   private scoreText!: Phaser.GameObjects.Text;
   private livesText!: Phaser.GameObjects.Text;
   private leftText!: Phaser.GameObjects.Text;
+  private itemInfoText!: Phaser.GameObjects.Text;
+  private itemInfoBubble!: Phaser.GameObjects.Rectangle;
+
 
   // --- Keyboard nav state ---
   private k!: {
@@ -153,17 +156,80 @@ export default class Game2Scene extends Phaser.Scene {
       { name: 'Teddy Bear', slug: 'teddy', category: 'landfill', color: 0xffa94d },
       { name: 'Tooth Brush', slug: 'toothbrush', category: 'landfill', color: 0xffa94d },
       { name: 'Straw', slug: 'straw', category: 'landfill', color: 0xffa94d },
-      { name: 'Broken Phone', slug: 'broken_phone', category: 'landfill', color: 0xffa94d },
       { name: 'Nitrile Glove', slug: 'nitrile_glove', category: 'landfill', color: 0xffa94d },
       { name: 'Takeout Box', slug: 'takeout', category: 'landfill', color: 0xffa94d },
     ];
     this.pool = [...bottles_cans, ...paper, ...compost, ...landfill]; // 25 items
   }
 
-  private buildHUD() {
-    this.scoreText = this.add.text(24, 56, 'Score: 0', { fontFamily: 'Arial', fontSize: '18px', color: '#0b5132' });
-    this.livesText = this.add.text(24, 78, 'Lives: 3', { fontFamily: 'Arial', fontSize: '18px', color: '#7b341e' });
-    this.leftText = this.add.text(24, 100, 'Items Left: 10', { fontFamily: 'Arial', fontSize: '18px', color: '#1a202c' });
+private buildHUD() {
+    const { width } = this.scale;
+      // Items left: top-left (NEW – you were missing this)
+    this.leftText = this.add.text(24, 52, 'Items Left: 10', {
+      fontFamily: 'Arial',
+      fontSize: '18px',
+      color: '#1a202c'
+    });
+
+    // Score: top-right
+    this.scoreText = this.add.text(width - 24, 24, 'Score: 0', {
+      fontFamily: 'Arial',
+      fontSize: '18px',
+      color: '#0b5132',
+      align: 'right'
+    }).setOrigin(1, 0); // anchor to top-right
+
+    // Lives: hearts, under score
+    this.livesText = this.add.text(width - 24, 52, 'Lives: ❤️❤️❤️', {
+      fontFamily: 'Arial',
+      fontSize: '18px',
+      color: '#7b341e',
+      align: 'right'
+    }).setOrigin(1, 0);
+
+    // --- Item info bubble in the top center ---
+    const centerX = width / 2;
+    const bubbleY = 40;
+
+    this.itemInfoBubble = this.add.rectangle(centerX, bubbleY, 40, 32, 0xffffff, 0.95)
+      .setOrigin(0.5)
+      .setStrokeStyle(2, 0x1e90ff); // blue border
+    this.itemInfoBubble.setVisible(false);
+    this.itemInfoBubble.setDepth(2000);
+
+    this.itemInfoText = this.add.text(centerX, bubbleY, '', {
+      fontFamily: 'Arial',
+      fontSize: '22px',
+      color: '#111111',
+      align: 'center'
+    }).setOrigin(0.5);
+    this.itemInfoText.setDepth(2001);
+  }
+
+  private showItemInfo(item?: ItemDef) {
+    if (!item) {
+      this.clearItemInfo();
+      return;
+    }
+
+    this.itemInfoText.setText(item.name);
+
+    // Resize bubble around the text
+    const paddingX = 24;
+    const paddingY = 10;
+    const bounds = this.itemInfoText.getBounds();
+    const w = bounds.width + paddingX;
+    const h = bounds.height + paddingY;
+
+    this.itemInfoBubble.setSize(w, h);
+    this.itemInfoBubble.setVisible(true);
+    this.itemInfoText.setVisible(true);
+  }
+
+  private clearItemInfo() {
+    this.itemInfoText.setText('');
+    this.itemInfoBubble.setVisible(false);
+    this.itemInfoText.setVisible(false);
   }
 
   private buildBins() {
@@ -243,6 +309,7 @@ export default class Game2Scene extends Phaser.Scene {
     this.selectedItemIndex = idx;
   }
   }
+
   private spawnItems(items: ItemDef[]) {
     const COLS = this.GRID_COLS; // keep in sync
     const startX = 110;
@@ -253,7 +320,6 @@ export default class Game2Scene extends Phaser.Scene {
     // thumbnail box to fit images into
     const THUMB_MAX_W = 90;
     const THUMB_MAX_H = 70;
-    const FONT_SIZE = 12;
 
     // clear previous
     this.liveDraggables.forEach(d => d.destroy());
@@ -265,37 +331,23 @@ export default class Game2Scene extends Phaser.Scene {
       const x = startX + col * colGap;
       const y = startY + row * rowGap;
 
-      // image (if exists)
-      let img: Phaser.GameObjects.Image | null = null;
-      if (this.textures.exists(it.slug)) {
-        img = this.add.image(0, 0, it.slug).setOrigin(0.5);
-        this.fitImage(img, THUMB_MAX_W, THUMB_MAX_H);
-      }
-
-      // label
-      const label = this.add.text(0, 0, it.name, {
-        fontFamily: 'Arial',
-        fontSize: `${FONT_SIZE}px`,
-        color: '#111',
-        align: 'center',
-        wordWrap: { width: THUMB_MAX_W }
-      }).setOrigin(0.5);
-
       let contents: Phaser.GameObjects.GameObject[] = [];
-      let w = THUMB_MAX_W, h = THUMB_MAX_H + 18;
+      let w = THUMB_MAX_W;
+      let h = THUMB_MAX_H;
 
-      if (img) {
-        img.y = -8;
-        label.y = (THUMB_MAX_H / 2) - 6;
-        contents = [img, label];
-        w = Math.max(THUMB_MAX_W, img.displayWidth);
-        h = Math.max(THUMB_MAX_H + 18, img.displayHeight + 18);
+      // image (if exists)
+      if (this.textures.exists(it.slug)) {
+        const img = this.add.image(0, 0, it.slug).setOrigin(0.5);
+        this.fitImage(img, THUMB_MAX_W, THUMB_MAX_H);
+        w = img.displayWidth;
+        h = img.displayHeight;
+        contents = [img];
       } else {
+        // fallback: colored card
         const card = this.add.rectangle(0, 0, THUMB_MAX_W, THUMB_MAX_H, it.color)
           .setOrigin(0.5)
           .setStrokeStyle(2, 0x222222);
-        label.y = 0;
-        contents = [card, label];
+        contents = [card];
       }
 
       const container = this.add.container(x, y, contents)
@@ -313,17 +365,41 @@ export default class Game2Scene extends Phaser.Scene {
         container.input.localY = -h / 2;
       }
 
+      // --- Hover → show item name at top ---
+      container.on('pointerover', () => {
+        this.showItemInfo(it);
+      });
+
+      container.on('pointerout', () => {
+        // don't clear if this item is currently being held via keyboard
+        if (this.holding !== container) {
+          this.clearItemInfo();
+        }
+      });
+
+      // --- Drag behavior (mouse) ---
       this.input!.setDraggable(container, true);
+
+      container.on('dragstart', () => {
+        this.showItemInfo(it);
+      });
+
       container.on('drag', (_p: any, dragX: number, dragY: number) => {
         container.x = dragX;
         container.y = dragY;
       });
-      container.on('dragend', () => this.onDrop(container));
+
+      container.on('dragend', () => {
+        this.clearItemInfo();
+        this.onDrop(container);
+      });
 
       // subtle pulse
       this.tweens.add({
         targets: container,
-        duration: 1100, repeat: -1, yoyo: true,
+        duration: 1100,
+        repeat: -1,
+        yoyo: true,
         alpha: { from: 1, to: 0.88 },
         ease: 'Sine.easeInOut',
         delay: Phaser.Math.Between(0, 400)
@@ -332,6 +408,7 @@ export default class Game2Scene extends Phaser.Scene {
       this.liveDraggables.push(container);
     });
   }
+
 
   // ---------- Mouse drop logic (unified via resolveDrop) ----------
   private onDrop(card: Phaser.GameObjects.Container) {
@@ -419,55 +496,94 @@ export default class Game2Scene extends Phaser.Scene {
   // ---------- End / Restart ----------
   private updateHUD() {
     this.scoreText.setText(`Score: ${this.score}`);
-    this.livesText.setText(`Lives: ${this.lives}`);
+    const hearts = '❤️'.repeat(Math.max(this.lives, 0));
+    this.livesText.setText(`Lives: ${hearts}`);
     this.leftText.setText(`Items Left: ${this.itemsLeft}`);
   }
 
   private overlay?: Phaser.GameObjects.Container;
 
-  private endRound(won: boolean) {
-    if (this.roundState === 'ended') return;
-    this.roundState = 'ended';
+private endRound(won: boolean) {
+  if (this.roundState === 'ended') return;
+  this.roundState = 'ended';
 
-    // Disable drag on remaining items
-    this.liveDraggables.forEach(c => c.disableInteractive());
+  // Disable drag on remaining items
+  this.liveDraggables.forEach(c => c.disableInteractive());
 
-    const { width, height } = this.scale;
+  const { width, height } = this.scale;
 
-    // Blocker
-    const blocker = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.35)
-      .setOrigin(0.5)
-      .setInteractive({ cursor: 'default' });
+  // Blocker
+  const blocker = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.35)
+    .setOrigin(0.5)
+    .setInteractive({ cursor: 'default' });
 
-    // Panel & text
-    const panel = this.add.rectangle(width / 2, height / 2, 520, 260, won ? 0x22543d : 0x742a2a, 0.95).setOrigin(0.5);
-    const title = this.add.text(width / 2, height / 2 - 30, won ? 'Nice sorting!' : 'Out of lives!', {
-      fontFamily: 'Arial', fontSize: '28px', color: '#ffffff'
-    }).setOrigin(0.5);
+  // Panel & text
+  const panel = this.add.rectangle(width / 2, height / 2, 520, 260, won ? 0x22543d : 0x742a2a, 0.95).setOrigin(0.5);
+  const title = this.add.text(width / 2, height / 2 - 30, won ? 'Nice sorting!' : 'Out of lives!', {
+    fontFamily: 'Arial', fontSize: '28px', color: '#ffffff'
+  }).setOrigin(0.5);
 
-    const scoreLabel = this.add.text(width / 2, height / 2 + 6, `Score: ${this.score} / ${this.ITEMS_PER_ROUND}`, {
-      fontFamily: 'Arial', fontSize: '20px', color: '#e6fffa'
-    }).setOrigin(0.5);
+  const scoreLabel = this.add.text(width / 2, height / 2 + 6, `Score: ${this.score} / ${this.ITEMS_PER_ROUND}`, {
+    fontFamily: 'Arial', fontSize: '20px', color: '#e6fffa'
+  }).setOrigin(0.5);
 
-    // Restart
-    const restartBg = this.add.rectangle(width / 2, height / 2 + 60, 160, 46, 0xffffff)
-      .setOrigin(0.5)
-      .setInteractive({ cursor: 'pointer' });
+  const buttonY = height / 2 + 60;
 
-    const restartTxt = this.add.text(width / 2, height / 2 + 60, 'Restart', {
-      fontFamily: 'Arial', fontSize: '18px', color: '#111'
-    }).setOrigin(0.5);
+  // Restart button (left)
+  const restartBg = this.add.rectangle(width / 2 - 90, buttonY, 160, 46, 0xffffff)
+    .setOrigin(0.5)
+    .setInteractive({ cursor: 'pointer' });
 
-    restartBg.on('pointerdown', () => restartBg.setFillStyle(0xe2e8f0));
-    restartBg.on('pointerup', () => {
-      restartBg.setFillStyle(0xffffff);
-      this.destroyOverlayAndRestart();
-    });
-    restartBg.on('pointerout', () => restartBg.setFillStyle(0xffffff));
+  const restartTxt = this.add.text(width / 2 - 90, buttonY, 'Restart (R)', {
+    fontFamily: 'Arial', fontSize: '18px', color: '#111'
+  }).setOrigin(0.5);
 
-    this.overlay = this.add.container(0, 0, [blocker, panel, title, scoreLabel, restartBg, restartTxt]);
-    this.overlay.setDepth(3000);
-  }
+  restartBg.on('pointerdown', () => restartBg.setFillStyle(0xe2e8f0));
+  restartBg.on('pointerup', () => {
+    restartBg.setFillStyle(0xffffff);
+    this.destroyOverlayAndRestart();
+  });
+  restartBg.on('pointerout', () => restartBg.setFillStyle(0xffffff));
+
+  // Home button (right)
+  const homeBg = this.add.rectangle(width / 2 + 90, buttonY, 160, 46, 0xffffff)
+    .setOrigin(0.5)
+    .setInteractive({ cursor: 'pointer' });
+
+  const homeTxt = this.add.text(width / 2 + 90, buttonY, 'Home (Esc)', {
+    fontFamily: 'Arial', fontSize: '18px', color: '#111'
+  }).setOrigin(0.5);
+
+  homeBg.on('pointerdown', () => homeBg.setFillStyle(0xe2e8f0));
+  homeBg.on('pointerup', () => {
+    homeBg.setFillStyle(0xffffff);
+    this.goHomeFromOverlay();
+  });
+  homeBg.on('pointerout', () => homeBg.setFillStyle(0xffffff));
+
+  this.overlay = this.add.container(0, 0, [
+    blocker,
+    panel,
+    title,
+    scoreLabel,
+    restartBg,
+    restartTxt,
+    homeBg,
+    homeTxt
+  ]);
+  this.overlay.setDepth(3000);
+
+  // --- Keyboard shortcuts while overlay is visible ---
+  const kb = this.input.keyboard!;
+  kb.once('keydown-R', () => {
+    // Restart with R
+    this.destroyOverlayAndRestart();
+  });
+  kb.once('keydown-ESC', () => {
+    // Go home with Esc
+    this.goHomeFromOverlay();
+  });
+}
 
   private destroyOverlayAndRestart() {
     if (this.overlay) {
@@ -476,6 +592,19 @@ export default class Game2Scene extends Phaser.Scene {
     }
     this.startRound();
   }
+
+  private goHomeFromOverlay() {
+  if (this.overlay) {
+    this.overlay.destroy(true);
+    this.overlay = undefined;
+  }
+
+  // If you want to reset any state explicitly, you can, but the scene will be replaced anyway.
+  this.roundState = 'ended';
+
+  // Change 'MainMenu' to whatever your main menu scene key is
+  this.scene.start('Play');
+}
 
   // ---------- Keyboard-only helpers ----------
   private moveSelection(dir: 'up' | 'down' | 'left' | 'right') {
@@ -543,6 +672,10 @@ export default class Game2Scene extends Phaser.Scene {
       this.holding = card;
       this.originalScale = { x: card.scaleX, y: card.scaleY };
 
+      const item: ItemDef = (card as any).item;
+      this.showItemInfo(item);
+
+
       // fly to hover, enlarge, gentle bobbing
       card.setDepth(2000);
       this.itemHighlight?.destroy();
@@ -591,6 +724,7 @@ export default class Game2Scene extends Phaser.Scene {
         if (this.originalScale) card.setScale(this.originalScale.x, this.originalScale.y);
         this.originalScale = null;
         this.resolveDrop(card!, chosen);
+        this.clearItemInfo();
         this.updateItemHighlight();
       }
     });
@@ -600,6 +734,7 @@ export default class Game2Scene extends Phaser.Scene {
     if (!this.holding) return;
     const card = this.holding;
     this.holding = null;
+    this.clearItemInfo();
     this.updateBinHighlight(false);
     this.holdPulse?.stop();
 
@@ -629,7 +764,9 @@ export default class Game2Scene extends Phaser.Scene {
   const cards = this.getAliveCards();
   if (!cards.length) {
     this.selectedItemIndex = -1;
-    this.itemHighlight?.destroy(); this.itemHighlight = undefined;
+    this.itemHighlight?.destroy();
+    this.itemHighlight = undefined;
+    this.clearItemInfo(); 
     return;
   }
 
@@ -649,11 +786,21 @@ export default class Game2Scene extends Phaser.Scene {
   private updateItemHighlight() {
     this.itemHighlight?.destroy();
     this.itemHighlight = undefined;
+
+    // If we're currently holding an item, don't override the hold info
     if (this.holding) return;
 
-    if (this.selectedItemIndex < 0 || this.selectedItemIndex >= this.liveDraggables.length) return;
+    // No valid selection → clear the name at top and bail
+    if (this.selectedItemIndex < 0 || this.selectedItemIndex >= this.liveDraggables.length) {
+      this.clearItemInfo(); 
+      return;
+    }
+
     const card = this.liveDraggables[this.selectedItemIndex];
-    if (!card || !card.active || !card.visible) return;
+    if (!card || !card.active || !card.visible) {
+      this.clearItemInfo();
+      return;
+    }
 
     const w = card.width, h = card.height;
     const r = this.add.rectangle(card.x, card.y, w + 12, h + 12)
@@ -662,6 +809,10 @@ export default class Game2Scene extends Phaser.Scene {
       .setFillStyle(0x000000, 0) as Phaser.GameObjects.Rectangle;
     r.setDepth(1500);
     this.itemHighlight = r;
+
+    // show the selected item's name at the top
+    const item: ItemDef = (card as any).item;
+    this.showItemInfo(item); 
 
     this.events.off('update', this.__trackItemHighlight, this);
     this.events.on('update', this.__trackItemHighlight, this);
