@@ -40,14 +40,22 @@ export default class Game1Scene extends Phaser.Scene {
     this.add.text(W / 2, 50, "Pretreatment Game", {
       fontSize: "28px",
       color: "#000000",
-      backgroundColor: "rgba(255, 255, 255, 0.7)",
+      backgroundColor: "rgba(255, 255, 255, 0.9)",
+    }).setOrigin(0.5);
+
+    this.add.text(W / 2, 75, "Click the image or press the button to get your question", {
+      fontSize: "20px",
+      color: "#000000",
+      backgroundColor: "rgba(255, 255, 255, 0.9)",
+      padding: { x: 5, y: 5 },
     }).setOrigin(0.5);
 
     // TTS Instruction
     this.add.text(W / 2, 440, "Press T for text-to-speach to start", {
       fontSize: "18px",
       color: "#000000",
-      backgroundColor: "rgba(255, 255, 255, 0.7)",
+      backgroundColor: "rgba(255, 255, 255, 0.8)",
+      padding: { x: 5, y: 5 },
     }).setOrigin(0.5);
 
     // Add pause/mute buttons
@@ -75,7 +83,7 @@ export default class Game1Scene extends Phaser.Scene {
     // Optional text labels under images
     this.add.text(startX, yPos + 70, "Paper Towels(P)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
     this.add.text(startX + spacing, yPos + 70, "Water(W)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-    this.add.text(startX + spacing * 2, yPos + 70, "Fushable Wipes(F)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX + spacing * 2, yPos + 70, "Flushable Wipes(F)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
     this.add.text(startX + spacing * 3, yPos + 70, "Oil(O)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
     this.add.text(startX + spacing * 4, yPos + 70, "Leftover Food(L)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
     
@@ -134,7 +142,7 @@ export default class Game1Scene extends Phaser.Scene {
       qText = this.add.text(W / 2, H / 2 - 100, "Should you flush paper towels down your toilet?", {
         fontSize: "26px",
         color: "#000",
-        backgroundColor: "rgba(255, 255, 255, 0.7)",
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
       this.speak(qText.text);
@@ -153,7 +161,7 @@ export default class Game1Scene extends Phaser.Scene {
       qText = this.add.text(W / 2, H / 2 - 100, "Should you pour water down your sink drain?", {
         fontSize: "26px",
         color: "#000",
-        backgroundColor: "rgba(255, 255, 255, 0.7)",
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
       this.speak(qText.text);
@@ -172,7 +180,7 @@ export default class Game1Scene extends Phaser.Scene {
       qText = this.add.text(W / 2, H / 2 - 100, "Should you put flushable wipes in the toilet?", {
         fontSize: "26px",
         color: "#000",
-        backgroundColor: "rgba(255, 255, 255, 0.7)",
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
       this.speak(qText.text);
@@ -191,7 +199,7 @@ export default class Game1Scene extends Phaser.Scene {
       qText = this.add.text(W / 2, H / 2 - 100, "Should you pour oils and grease down the drain?", {
         fontSize: "26px",
         color: "#000",
-        backgroundColor: "rgba(255, 255, 255, 0.7)",
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
         padding: { x: 10, y: 5 },
       }).setOrigin(0.5);
       this.speak(qText.text);
@@ -210,7 +218,7 @@ export default class Game1Scene extends Phaser.Scene {
       qText = this.add.text(W / 2, H / 2 - 100, "Should you put leftover food in the compost instead of the sink?", {
         fontSize: "26px",
         color: "#000",
-        backgroundColor: "rgba(255, 255, 255, 0.7)",
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
         padding: { x: 10, y: 5 },
         wordWrap: { width: 600 },
       }).setOrigin(0.5);
@@ -243,7 +251,7 @@ export default class Game1Scene extends Phaser.Scene {
     const btn = this.add.text(x, y, label, {
       color: "#000",
       fontSize: "24px",
-      backgroundColor: "rgba(255, 255, 255, 0.7)",
+      backgroundColor: "rgba(255, 255, 255, 0.9)",
       padding: { x: 10, y: 5 },
     })
     .setOrigin(0.5)
@@ -282,7 +290,7 @@ export default class Game1Scene extends Phaser.Scene {
       fontSize: "22px",
       color: "#000",
       align: "center",
-      backgroundColor: "rgba(255, 255, 255, 0.7)",
+      backgroundColor: "rgba(255, 255, 255, 0.9)",
       padding: { x: 10, y: 5 },
       wordWrap: { width: 600 },
     }).setOrigin(0.5);
