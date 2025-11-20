@@ -59,7 +59,7 @@ export default class PlayScene extends Phaser.Scene {
     // Create buttons
     this.createButtons();
         // Title (top, bold) + floating
-    this.title = this.add.text(width / 2, height * 0.10, "Choose a mission", {
+    this.title = this.add.text(width / 2, height * 0.15, "Choose a mission", {
       fontFamily: "Arial, Helvetica, sans-serif",
       fontSize: "48px",
       fontStyle: "bold",
@@ -98,7 +98,7 @@ export default class PlayScene extends Phaser.Scene {
     // Position bottom-left
     this.mascot.setOrigin(0, 1).setPosition(pad, height - pad);
 
-    const desiredHeight = Math.round(height * 0.48); 
+    const desiredHeight = Math.round(height * 0.58); 
     const tex = this.textures.get('mascot').getSourceImage() as HTMLImageElement;
     const naturalW = tex.width, naturalH = tex.height;
     const aspect = naturalW / naturalH;
