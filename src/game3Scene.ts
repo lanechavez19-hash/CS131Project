@@ -84,7 +84,7 @@ export default class Game3Scene extends Phaser.Scene {
             fontSize: "23px",
             color: "#000000",
             fontStyle: "bold",
-            backgroundColor: "rgba(238, 238, 238, 0.6)",
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
         }).setOrigin(0.5);
 
         // Add pause/mute buttons
@@ -170,14 +170,14 @@ export default class Game3Scene extends Phaser.Scene {
             color: "#000000",
             fontSize: "24px",
             fontStyle: "bold",
-            backgroundColor: "rgba(238, 238, 238, 0.6)",
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
             padding: { x: 10, y: 5 },
         })
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true })
             .on("pointerdown", callback)
             .on("pointerover", () => btn.setStyle({ backgroundColor: "#dddddd" }))
-            .on("pointerout", () => btn.setStyle({ backgroundColor: "rgba(238, 238, 238, 0.6)" }));
+             .on("pointerout", () => btn.setStyle({ backgroundColor: "rgba(255, 255, 255, 0.9)" }));
 
         return btn;
     }
@@ -193,7 +193,7 @@ export default class Game3Scene extends Phaser.Scene {
             fontSize: "24px",
             color: "#000000",
             fontStyle: "bold",
-            backgroundColor: "rgba(238, 238, 238, 0.6)",
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
             padding: { x: 10, y: 5 },
             wordWrap: { width: 600 }
         }).setOrigin(0.5);
@@ -264,7 +264,7 @@ export default class Game3Scene extends Phaser.Scene {
             fontSize: "24px",
             color: "#000000",
             fontStyle: "bold",
-            backgroundColor: "rgba(238, 238, 238, 0.6)",
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
             padding: { x: 10, y: 5 },
             wordWrap: { width: 600 },
             align: "center"
