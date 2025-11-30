@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { addControlButtons } from "./ui/Buttons";
+import  TTS  from "./utils/TTS";
 
 type Category = 'paper' | 'bottles_cans' | 'compost' | 'landfill';
 
@@ -93,7 +94,7 @@ export default class Game2Scene extends Phaser.Scene {
     const kb = ip.keyboard!;
     kb.removeAllListeners('keydown-ENTER');
 
-    this.k = kb.addKeys({ W: 'W', A: 'A', S: 'S', D: 'D', ENTER: 'ENTER', ESC: 'ESC' }) as any;
+    this.k = kb.addKeys({ W: 'W', A: 'A', S: 'S', D: 'D', ENTER: 'ENTER', ESC: 'ESC', E:'E' }) as any;
 
     // WASD selection when NOT holding
     kb.on('keydown-W', () => this.moveSelection('up'));
@@ -103,11 +104,18 @@ export default class Game2Scene extends Phaser.Scene {
 
     // Enter pick up / drop, Esc cancel
     kb.on('keydown-ENTER', () => this.confirmOrDrop());
-    kb.on('keydown-ESC', () => this.cancelPickup());
+    kb.on('keydown-E', () => this.cancelPickup());
 
-    // (optional) allow arrows for selection too
-    kb.on('keydown-LEFT', () => this.moveSelection('left'));
-    kb.on('keydown-RIGHT', () => this.moveSelection('right'));
+    // arrow keys control
+
+    kb.on('keydown-LEFT', () => {
+      if (this.holding) this.shiftBin(-1);     // Move bin left when holding
+      else this.moveSelection('left');         // Otherwise navigate items
+    });
+    kb.on('keydown-RIGHT', () => {
+      if (this.holding) this.shiftBin(+1);     // Move bin right when holding
+      else this.moveSelection('right');        // Otherwise navigate items
+    });
     kb.on('keydown-UP', () => this.moveSelection('up'));
     kb.on('keydown-DOWN', () => this.moveSelection('down'));
   }
@@ -159,7 +167,7 @@ export default class Game2Scene extends Phaser.Scene {
       { name: 'Nitrile Glove', slug: 'nitrile_glove', category: 'landfill', color: 0xffa94d },
       { name: 'Takeout Box', slug: 'takeout', category: 'landfill', color: 0xffa94d },
     ];
-    this.pool = [...bottles_cans, ...paper, ...compost, ...landfill]; // 25 items
+    this.pool = [...bottles_cans, ...paper, ...compost, ...landfill];
   }
 
 private buildHUD() {
@@ -368,12 +376,14 @@ private buildHUD() {
       // --- Hover → show item name at top ---
       container.on('pointerover', () => {
         this.showItemInfo(it);
+        TTS.speak(it.name); 
       });
 
       container.on('pointerout', () => {
         // don't clear if this item is currently being held via keyboard
         if (this.holding !== container) {
           this.clearItemInfo();
+          TTS.stop();
         }
       });
 
@@ -507,6 +517,10 @@ private endRound(won: boolean) {
   if (this.roundState === 'ended') return;
   this.roundState = 'ended';
 
+  const kb = this.input.keyboard!;
+  kb.off('keydown-ESC', this.cancelPickup, this);
+  kb.off('keydown-ENTER', this.confirmOrDrop, this);
+  this.input.keyboard?.removeAllListeners('keydown-ESC');
   // Disable drag on remaining items
   this.liveDraggables.forEach(c => c.disableInteractive());
 
@@ -574,15 +588,8 @@ private endRound(won: boolean) {
   this.overlay.setDepth(3000);
 
   // --- Keyboard shortcuts while overlay is visible ---
-  const kb = this.input.keyboard!;
-  kb.once('keydown-R', () => {
-    // Restart with R
-    this.destroyOverlayAndRestart();
-  });
-  kb.once('keydown-ESC', () => {
-    // Go home with Esc
-    this.goHomeFromOverlay();
-  });
+  kb.once('keydown-R', () => this.destroyOverlayAndRestart());
+  kb.once('keydown-ESC', () => this.goHomeFromOverlay());
 }
 
   private destroyOverlayAndRestart() {
@@ -599,10 +606,7 @@ private endRound(won: boolean) {
     this.overlay = undefined;
   }
 
-  // If you want to reset any state explicitly, you can, but the scene will be replaced anyway.
   this.roundState = 'ended';
-
-  // Change 'MainMenu' to whatever your main menu scene key is
   this.scene.start('Play');
 }
 
@@ -813,6 +817,7 @@ private endRound(won: boolean) {
     // show the selected item's name at the top
     const item: ItemDef = (card as any).item;
     this.showItemInfo(item); 
+    TTS.speak(item.name); 
 
     this.events.off('update', this.__trackItemHighlight, this);
     this.events.on('update', this.__trackItemHighlight, this);
