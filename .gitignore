@@ -1,0 +1,26 @@
+# Node.js dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Editor settings
+.vscode/
+.idea/
+.vs/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Visual Studio specific
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vsidx
+.vs/
