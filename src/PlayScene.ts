@@ -30,7 +30,7 @@ export default class PlayScene extends Phaser.Scene {
     this.load.image("btn-sorting",     "assets/ui/btn_sorting.png");
     this.load.image("btn-pretreatment","assets/ui/btn_pretreatment.png");
     this.load.image("btn-wildlife",    "assets/ui/btn_wildlife.png");
-    this.load.image("menu-bg",         "assets/ui/davis_bg.png");
+    this.load.image("menu-bg",         "assets/ui/davis_combined.png");
     this.load.image("ProfessorDavis",  "assets/images/ProfDavis.png");
   }
 
@@ -39,17 +39,7 @@ export default class PlayScene extends Phaser.Scene {
     this.time.delayedCall(150, () => {
       this.input.enabled = true;
     });
-     // Add the image, anchor bottom-left
-    this.mascot = this.add.image(0, 0, 'ProfessorDavis')
-      .setOrigin(0, 1)      // left-bottom corner
-      .setDepth(5)          // behind UI? adjust as needed
-      .setInteractive({ useHandCursor: false }); // optional
 
-    // Initial layout
-    this.layoutMascot();
-
-    // Keep it correct on window resize
-    this.scale.on('resize', this.layoutMascot, this);
     const { width, height } = this.scale;
     this.highlight = this.add.graphics();
     // Background (cover-style)
@@ -91,35 +81,21 @@ export default class PlayScene extends Phaser.Scene {
     this.scale.on("resize", this.onResize, this);
   }
 
-  private layoutMascot() {
-    const pad = 16;
-    const { width, height } = this.scale;
-
-    // Position bottom-left
-    this.mascot.setOrigin(0, 1).setPosition(pad, height - pad);
-
-    const desiredHeight = Math.round(height * 0.58); 
-    const tex = this.textures.get('mascot').getSourceImage() as HTMLImageElement;
-    const naturalW = tex.width, naturalH = tex.height;
-    const aspect = naturalW / naturalH;
-
-    this.mascot.setDisplaySize(desiredHeight * aspect, desiredHeight);
-  }
   // Lay out buttons evenly and wire interactions
   private createButtons() {
     const { width, height } = this.scale;
 
     // Horizontal layout
-    const y = height * 0.48;                 // row height
+    const y = height * 0.48;       
     const cols = this.items.length;
-    const colGap = Math.min(320, width / 5); // cap gap so it doesn't explode on ultrawide
+    const colGap = Math.min(320, width / 5); 
     const totalWidth = colGap * (cols - 1);
     const startX = width*0.15 + (width / 2 - totalWidth / 2);
 
     this.items.forEach((item, i) => {
       const img = this.add.image(0, 0, item.key);
 
-      // scale to a friendly height
+      // scale 
       const targetH = Math.min(280, this.scale.height * 0.33);
       const s = targetH / img.height;
       img.setScale(s);
@@ -197,7 +173,6 @@ export default class PlayScene extends Phaser.Scene {
     this.selectionIndex = (this.selectionIndex + delta + n) % n;
     this.drawHighlight();
 
-    // give the keyboard-selected one a brief hover-in feel
     const item = this.items[this.selectionIndex];
     this.playHoverIn(item);
     // reset others

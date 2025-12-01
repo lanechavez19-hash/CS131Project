@@ -17,7 +17,9 @@ export default class PreloadScene extends Phaser.Scene {
     TTS.init();
     // Load audio
     this.load.audio("bgm", "./assets/audio/Test.mp3");
-
+    this.load.image("btnPause", "assets/ui/pause.png");
+    this.load.image("btnSoundOn", "assets/ui/sound_on.png");
+    this.load.image("btnSoundOff", "assets/ui/sound_off.png");
   }
 
   create() {

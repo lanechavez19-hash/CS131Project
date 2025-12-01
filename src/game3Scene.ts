@@ -13,9 +13,6 @@ type CampObj = {
 export default class Game3Scene extends Phaser.Scene {
   private currentAnswerText?: Phaser.GameObjects.Text;
   private activeObjects: Phaser.GameObjects.GameObject[] = [];
-
-  // TTS: simple state (no T-key, no local voices)
-  private ttsEnabled = false;
   private introSpoken = false;
 
   constructor() {
@@ -74,13 +71,10 @@ export default class Game3Scene extends Phaser.Scene {
 
     // Init global TTS helper
     TTS.init();
-
-    // Read TTS state from registry (set by Settings/Pause)
+    
     const regTts = this.registry.get("ttsEnabled");
-    if (typeof regTts === "boolean") {
-      this.ttsEnabled = regTts;
-    }
-    TTS.enabled = this.ttsEnabled;
+
+    TTS.enabled = typeof regTts === "boolean" ? regTts : false;
 
     const bg = this.add.image(W / 2, H / 2, "park");
     bg.setDisplaySize(W, H);
@@ -88,7 +82,7 @@ export default class Game3Scene extends Phaser.Scene {
     this.add
       .text(
         W / 2,
-        60,
+        80,
         "Click the image or press the button to get your question",
         {
           fontSize: "23px",
@@ -166,8 +160,8 @@ export default class Game3Scene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    // Optional: intro line if TTS is already on
-    if (this.ttsEnabled && !this.introSpoken) {
+    // intro line if TTS is already on
+    if (TTS.enabled && !this.introSpoken) {
       this.introSpoken = true;
       this.speak(
         "Welcome to Urban Wildlife Game. Press R, W, A, B, or D to choose an item. Use Y for Yes and N for No.",
@@ -321,7 +315,7 @@ export default class Game3Scene extends Phaser.Scene {
   // ---------- TTS wrappers using global helper ----------
 
   private speak(text: string, opts?: { rate?: number; pitch?: number }) {
-    if (!this.ttsEnabled) return;
+    if (!TTS.enabled) return;
     TTS.speak(text, opts);
   }
 

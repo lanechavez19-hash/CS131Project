@@ -2,56 +2,103 @@ import Phaser from "phaser";
 import { Settings } from "./Settings";
 
 /**
- * Creates a mute and pause button in the given scene.
- * @param scene - Phaser.Scene to place the button in
- * @param x - X position
- * @param y - Y position
- **/
+ * Create a mute/unmute button in the given scene.
+ * Default position: top-left.
+ */
+export function addMuteButton(
+  scene: Phaser.Scene,
+  x = 100,
+  y = 40,
+  baseScale = 0.15
+) {
+  const textureKey = Settings.muted ? "btnSoundOff" : "btnSoundOn";
 
-export function addMuteButton(scene: Phaser.Scene, x = 60, y = 20) {
-  const btn = scene.add.text(x, y, Settings.muted ? "🔇" : "🔊", {
-    fontSize: "28px",
-    color: "#00324d",
-  })
-  .setOrigin(0, 0)                    
-  .setInteractive({ cursor: "pointer" })
+  const btn = scene.add
+    .image(x, y, textureKey)
+    .setInteractive({ useHandCursor: true });
 
-  // apply current state
+  btn.setScale(baseScale);
+
+  // apply current audio state
   scene.sound.mute = Settings.muted;
   scene.game.sound.mute = Settings.muted;
 
+  // hover feedback
+  btn.on("pointerover", () => {
+    btn.setScale(baseScale * 1.15);
+  });
+
+  btn.on("pointerout", () => {
+    btn.setScale(baseScale);
+    btn.clearTint();
+  });
+
+  // click feedback + toggle
   btn.on("pointerdown", () => {
+    btn.setScale(baseScale * 0.9);
+    btn.setTint(0xfff3c4);
+  });
+
+  btn.on("pointerup", () => {
     Settings.muted = !Settings.muted;
     scene.sound.mute = Settings.muted;
     scene.game.sound.mute = Settings.muted;
-    btn.setText(Settings.muted ? "🔇" : "🔊");
+
+    btn.setTexture(Settings.muted ? "btnSoundOff" : "btnSoundOn");
+    btn.setScale(baseScale * 1.15);
+    btn.clearTint();
   });
 
   return btn;
 }
 
-export function addPauseButton(scene: Phaser.Scene, x = 20, y = 20) {
-    const pauseBtn = scene.add
-        .text(x, y, "⏸", { fontSize: "28px", color: "#00324d" })
-        .setInteractive({ cursor: "pointer" });
+/**
+ * Pause button that opens the Pause scene.
+ * Default position: top-left.
+ */
+export function addPauseButton(
+  scene: Phaser.Scene,
+  x = 50,
+  y = 40,
+  baseScale = 0.15
+) {
+  const pauseBtn = scene.add
+    .image(x, y, "btnPause")
+    .setInteractive({ useHandCursor: true });
 
-    pauseBtn.on("pointerdown", () => {
-        scene.scene.launch("Pause", { from: scene.scene.key }); 
-        scene.scene.pause();
-    });
+  pauseBtn.setScale(baseScale);
 
-    // ESC also opens pause
-    scene.input.keyboard?.on("keydown-ESC", () => {
-        scene.scene.launch("Pause", { from: scene.scene.key });
-        scene.scene.pause();
-    });
+  const openPause = () => {
+    pauseBtn.setTint(0xfff3c4);
+    pauseBtn.setScale(baseScale * 0.9);
 
-    return pauseBtn;
+    scene.scene.launch("Pause", { from: scene.scene.key });
+    scene.scene.pause();
+  };
+
+  // hover feedback
+  pauseBtn.on("pointerover", () => {
+    pauseBtn.setScale(baseScale * 1.15);
+  });
+
+  pauseBtn.on("pointerout", () => {
+    pauseBtn.setScale(baseScale);
+    pauseBtn.clearTint();
+  });
+
+  pauseBtn.on("pointerdown", openPause);
+
+  // ESC also opens pause
+  scene.input.keyboard?.on("keydown-ESC", openPause);
+
+  return pauseBtn;
 }
 
+/**
+ * Convenience helper to add both pause + mute buttons.
+ * Top-left by default.
+ */
 export function addControlButtons(scene: Phaser.Scene) {
-  addPauseButton(scene, 20, 18);
-  addMuteButton(scene, 50, 20);
+  addPauseButton(scene, 50, 40, 0.15);
+  addMuteButton(scene, 110, 40, 0.15);
 }
-
-

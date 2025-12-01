@@ -80,10 +80,19 @@ export default class Game2Scene extends Phaser.Scene {
   create() {
     this.input.keyboard?.removeAllListeners(); 
     this.input.removeAllListeners();  
+
+        // Init global TTS helper once
+        TTS.init();
+    
+        // Read TTS flag from registry (set by Pause/Settings)
+        const regTts = this.registry.get("ttsEnabled");
+    
+        TTS.enabled = typeof regTts === "boolean" ? regTts : false;
+    
     const bg = this.add.image(0, 0, 'sortingBackground')
       .setOrigin(0)
       .setDisplaySize(this.scale.width, this.scale.height);
-
+    
     addControlButtons(this);
     this.buildHUD();
     this.buildBins();
@@ -172,12 +181,11 @@ export default class Game2Scene extends Phaser.Scene {
 
 private buildHUD() {
     const { width } = this.scale;
-      // Items left: top-left (NEW – you were missing this)
-    this.leftText = this.add.text(24, 52, 'Items Left: 10', {
+    this.leftText = this.add.text(width - 24, 80, 'Items Left: 10', {
       fontFamily: 'Arial',
       fontSize: '18px',
       color: '#1a202c'
-    });
+    }).setOrigin(1, 0);
 
     // Score: top-right
     this.scoreText = this.add.text(width - 24, 24, 'Score: 0', {
@@ -623,7 +631,7 @@ private endRound(won: boolean) {
   if (!cur) return;
 
   const cx = cur.x, cy = cur.y;
-  const EPS = 8; // tolerance band so we don't require perfect alignment
+  const EPS = 8; 
 
   // direction filters
   const isCandidate = (other: Phaser.GameObjects.Container) => {

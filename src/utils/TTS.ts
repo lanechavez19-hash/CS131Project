@@ -51,8 +51,8 @@ export default class TTS {
     const utter = new Utterance(text);
     if (this.voice) utter.voice = this.voice;
 
-    utter.rate = opts?.rate ?? 1;
-    utter.pitch = opts?.pitch ?? 1;
+    utter.rate = opts?.rate ?? 1.1;
+    utter.pitch = opts?.pitch ?? 1.1;
     utter.volume = 1;
 
     synth.cancel();

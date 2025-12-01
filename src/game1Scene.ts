@@ -6,9 +6,6 @@ export default class Game1Scene extends Phaser.Scene {
   private currentAnswerText?: Phaser.GameObjects.Text;
   private activeObjects: Phaser.GameObjects.GameObject[] = [];
 
-  // TTS state (no T key anymore)
-  private ttsEnabled = false;
-
   constructor() {
     super("Game1");
   }
@@ -30,10 +27,8 @@ export default class Game1Scene extends Phaser.Scene {
 
     // Read TTS flag from registry (set by Pause/Settings)
     const regTts = this.registry.get("ttsEnabled");
-    if (typeof regTts === "boolean") {
-      this.ttsEnabled = regTts;
-    }
-    TTS.enabled = this.ttsEnabled;
+
+    TTS.enabled = typeof regTts === "boolean" ? regTts : false;
 
     const bg = this.add.image(W / 2, H / 2, "counter");
     bg.setDisplaySize(W, H);
@@ -56,8 +51,6 @@ export default class Game1Scene extends Phaser.Scene {
       }
     ).setOrigin(0.5);
 
-    // You can either remove this line entirely, or change the text
-    // since T no longer does anything:
     this.add.text(W / 2, 440, "Use P, W, F, O, or L to choose an item. Y = Yes, N = No.", {
       fontSize: "18px",
       color: "#000000",
@@ -89,8 +82,7 @@ export default class Game1Scene extends Phaser.Scene {
     this.add.text(startX + spacing * 3, yPos + 70, "Oil(O)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
     this.add.text(startX + spacing * 4, yPos + 70, "Leftover Food(L)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
 
-    // Optional: if TTS is already enabled (from settings), speak a welcome once
-    if (this.ttsEnabled) {
+    if (TTS.enabled) {
       this.speak(
         "Welcome to Pretreatment Game. Press P, W, F, O, or L to choose an item. Use Y for Yes and N for No.",
         { rate: 1.1, pitch: 1.1 }
@@ -98,7 +90,6 @@ export default class Game1Scene extends Phaser.Scene {
     }
   }
 
-  // ---------- helpers below stay same, using this.speak / this.stopSpeaking ----------
 
   private makeImageBtn(
     x: number,
@@ -313,7 +304,7 @@ export default class Game1Scene extends Phaser.Scene {
 
   // Wrappers around the global helper
   private speak(text: string, opts?: { rate?: number; pitch?: number }) {
-    if (!this.ttsEnabled) return;
+    if (!TTS.enabled) return;
     TTS.speak(text, opts);
   }
 
