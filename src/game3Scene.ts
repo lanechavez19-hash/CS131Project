@@ -36,7 +36,7 @@ export default class Game3Scene extends Phaser.Scene {
     },
     {
       key: "appleTree",
-      question: "Should you pick up the fallen fruit?",
+      question: "Should you pick up fallen fruit under your fruit tree?",
       correctAnswer: true,
       correctFeedback: "Correct!\nPick up fallen fruit to avoid pest problems.",
       incorrectFeedback: "Incorrect!\nPick up fallen fruit to avoid pest problems.",
