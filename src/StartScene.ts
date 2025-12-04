@@ -25,7 +25,7 @@ export default class StartScene extends Phaser.Scene {
     // --- Play button image ---
     const playButton = this.add.image(W * 0.5, H * 0.72, "playBtn");
 
-    playButton.setScale(0.25);
+    playButton.setScale(scale);
 
     playButton.setInteractive({ useHandCursor: true });
 
