@@ -15,18 +15,17 @@ export default class StartScene extends Phaser.Scene {
 
     Music.play(this);
 
-    const bg = this.add.image(W / 2, H / 2, "startBg");
+    const bg = this.add.image(0, 0, "startBg").setOrigin(0);
     const title = this.add.image(W / 2, H * 0.25, "title");
     // Scale to fill screen while preserving aspect ratio
 
     const scale = Math.max(W / bg.width, H / bg.height);
     bg.setScale(scale);
-    title.setScale(0.25);
 
     // --- Play button image ---
     const playButton = this.add.image(W * 0.5, H * 0.72, "playBtn");
 
-    playButton.setScale(0.25);
+    playButton.setScale(scale);
 
     playButton.setInteractive({ useHandCursor: true });
 

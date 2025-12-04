@@ -138,7 +138,7 @@ export default class Game2Scene extends Phaser.Scene {
       { name: 'Newspaper', slug: 'newspaper', category: 'paper', color: 0x56cfe1 },
       { name: 'Notebook', slug: 'notebook', category: 'paper', color: 0x56cfe1 },
       { name: 'Paper Bag', slug: 'paper_bag', category: 'paper', color: 0x56cfe1 },
-      { name: 'Postcard', slug: 'postcard', category: 'paper', color: 0x56cfe1 },
+      { name: 'Card', slug: 'card', category: 'paper', color: 0x56cfe1 },
     ];
     const bottles_cans: ItemDef[] = [
       { name: 'Water Bottle', slug: 'plastic_bottle', category: 'bottles_cans', color: 0x56cfe1 },
