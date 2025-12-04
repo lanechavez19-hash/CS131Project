@@ -21,7 +21,6 @@ export default class StartScene extends Phaser.Scene {
 
     const scale = Math.max(W / bg.width, H / bg.height);
     bg.setScale(scale);
-    title.setScale(0.25);
 
     // --- Play button image ---
     const playButton = this.add.image(W * 0.5, H * 0.72, "playBtn");
