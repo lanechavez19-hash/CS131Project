@@ -46,6 +46,7 @@ export default class Game1Scene extends Phaser.Scene {
       {
         fontSize: "20px",
         color: "#000000",
+        fontStyle: "bold",
         backgroundColor: "rgba(255, 255, 255, 0.9)",
         padding: { x: 5, y: 5 },
       }
@@ -54,6 +55,7 @@ export default class Game1Scene extends Phaser.Scene {
     this.add.text(W / 2, 440, "Use P, W, F, O, or L to choose an item. Y = Yes, N = No.", {
       fontSize: "18px",
       color: "#000000",
+      fontStyle: "bold",
       backgroundColor: "rgba(255, 255, 255, 0.8)",
       padding: { x: 5, y: 5 },
     }).setOrigin(0.5);
@@ -76,11 +78,11 @@ export default class Game1Scene extends Phaser.Scene {
     this.input.keyboard!.on("keydown-O", () => this.askYesNoQuestion(4));
     this.input.keyboard!.on("keydown-L", () => this.askYesNoQuestion(5));
 
-    this.add.text(startX, yPos + 70, "Paper Towels(P)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-    this.add.text(startX + spacing, yPos + 70, "Water(W)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-    this.add.text(startX + spacing * 2, yPos + 70, "Flushable Wipes(F)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-    this.add.text(startX + spacing * 3, yPos + 70, "Oil(O)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
-    this.add.text(startX + spacing * 4, yPos + 70, "Leftover Food(L)", { fontSize: "17px", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX, yPos + 70, "Paper Towels(P)", { fontSize: "17px", fontStyle: "bold", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX + spacing, yPos + 70, "Water(W)", { fontSize: "17px", fontStyle: "bold", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX + spacing * 2, yPos + 70, "Flushable Wipes(F)", { fontSize: "17px", fontStyle: "bold", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX + spacing * 3, yPos + 70, "Oil(O)", { fontSize: "17px", fontStyle: "bold", color: "#000" }).setOrigin(0.5);
+    this.add.text(startX + spacing * 4, yPos + 70, "Leftover Food(L)", { fontSize: "17px", fontStyle: "bold", color: "#000" }).setOrigin(0.5);
 
     if (TTS.enabled) {
       this.speak(
@@ -126,6 +128,7 @@ export default class Game1Scene extends Phaser.Scene {
         {
           fontSize: "26px",
           color: "#000",
+          fontStyle: "bold",
           backgroundColor: "rgba(255, 255, 255, 0.9)",
           padding: { x: 10, y: 5 },
         }
@@ -149,6 +152,7 @@ export default class Game1Scene extends Phaser.Scene {
         {
           fontSize: "26px",
           color: "#000",
+          fontStyle: "bold",
           backgroundColor: "rgba(255, 255, 255, 0.9)",
           padding: { x: 10, y: 5 },
         }
@@ -172,6 +176,7 @@ export default class Game1Scene extends Phaser.Scene {
         {
           fontSize: "26px",
           color: "#000",
+          fontStyle: "bold",
           backgroundColor: "rgba(255, 255, 255, 0.9)",
           padding: { x: 10, y: 5 },
         }
@@ -195,6 +200,7 @@ export default class Game1Scene extends Phaser.Scene {
         {
           fontSize: "26px",
           color: "#000",
+          fontStyle: "bold",
           backgroundColor: "rgba(255, 255, 255, 0.9)",
           padding: { x: 10, y: 5 },
         }
@@ -218,6 +224,7 @@ export default class Game1Scene extends Phaser.Scene {
         {
           fontSize: "26px",
           color: "#000",
+          fontStyle: "bold",
           backgroundColor: "rgba(255, 255, 255, 0.9)",
           padding: { x: 10, y: 5 },
           wordWrap: { width: 600 },
@@ -253,6 +260,7 @@ export default class Game1Scene extends Phaser.Scene {
       .text(x, y, label, {
         color: "#000",
         fontSize: "24px",
+        fontStyle: "bold",
         backgroundColor: "rgba(255, 255, 255, 0.9)",
         padding: { x: 10, y: 5 },
       })
@@ -293,6 +301,7 @@ export default class Game1Scene extends Phaser.Scene {
     this.currentAnswerText = this.add.text(W / 2, H / 2 - 30, text, {
       fontSize: "22px",
       color: "#000",
+      fontStyle: "bold",
       align: "center",
       backgroundColor: "rgba(255, 255, 255, 0.9)",
       padding: { x: 10, y: 5 },
