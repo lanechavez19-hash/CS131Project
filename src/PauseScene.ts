@@ -40,7 +40,7 @@ export default class PauseScene extends Phaser.Scene {
     const panelH = H * 0.5;
 
     const panelBg = this.add
-      .rectangle(W / 2, H / 2, panelW, panelH, 0x111827, 0.95)
+      .rectangle(W / 2, H / 2, panelW, panelH, 0x29587F, 0.95)
       .setOrigin(0.5)
       .setStrokeStyle(2, 0xffffff);
 

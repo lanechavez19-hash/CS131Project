@@ -8,8 +8,8 @@ import { Settings } from "./Settings";
 export function addMuteButton(
   scene: Phaser.Scene,
   x = 100,
-  y = 40,
-  baseScale = 0.15
+  y = 30,
+  baseScale = 0.7
 ) {
   const textureKey = Settings.muted ? "btnSoundOff" : "btnSoundOn";
 
@@ -60,7 +60,7 @@ export function addPauseButton(
   scene: Phaser.Scene,
   x = 50,
   y = 40,
-  baseScale = 0.15
+  baseScale = 0.7
 ) {
   const pauseBtn = scene.add
     .image(x, y, "btnPause")
@@ -99,6 +99,6 @@ export function addPauseButton(
  * Top-left by default.
  */
 export function addControlButtons(scene: Phaser.Scene) {
-  addPauseButton(scene, 50, 40, 0.15);
-  addMuteButton(scene, 110, 40, 0.15);
+  addPauseButton(scene, 50, 40);
+  addMuteButton(scene, 110, 40);
 }
