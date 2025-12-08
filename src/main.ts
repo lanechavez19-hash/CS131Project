@@ -6,7 +6,6 @@ import Game1Scene from "./game1Scene";
 import Game2Scene from "./game2Scene";
 import Game3Scene from "./game3Scene";
 import PauseScene from "./PauseScene";
-import SettingsMenu from "./SettingsMenu";
 
 // Create Phaser game
 const game = new Phaser.Game({
@@ -27,7 +26,6 @@ const game = new Phaser.Game({
     Game2Scene,
     Game3Scene,
     PauseScene,
-    SettingsMenu
   ]
 });
 
