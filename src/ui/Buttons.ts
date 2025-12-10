@@ -49,6 +49,15 @@ export function addMuteButton(
     btn.clearTint();
   });
 
+     scene.input.keyboard?.on("keydown-M", () => {
+          Settings.muted = !Settings.muted;
+          scene.sound.mute = Settings.muted;
+          scene.game.sound.mute = Settings.muted;
+
+          btn.setTexture(Settings.muted ? "btnSoundOff" : "btnSoundOn");
+     });
+
+
   return btn;
 }
 

@@ -51,7 +51,22 @@ export default class PauseScene extends Phaser.Scene {
         color: "#ffffff",
         fontFamily: "Arial",
       })
-      .setOrigin(0.5);
+         .setOrigin(0.5);
+       this.add.text(W / 2 - 10, panelBg.y - panelH / 2 + 200, "(R)", {
+            fontSize: "18px",
+            color: "#ffffff",
+            fontFamily: "Arial",
+       })
+       this.add.text(W / 2 - 132, panelBg.y - panelH / 2 + 202, "(C)", {
+            fontSize: "18px",
+            color: "#ffffff",
+            fontFamily: "Arial",
+       })
+       this.add.text(W / 2 + 108, panelBg.y - panelH / 2 + 202, "(H)", {
+            fontSize: "18px",
+            color: "#ffffff",
+            fontFamily: "Arial",
+       })
 
     // --- TTS Toggle Button ---
     this.ttsButton = this.add
@@ -90,6 +105,11 @@ export default class PauseScene extends Phaser.Scene {
       this.scene.stop();
       this.scene.resume(data.from);
     });
+    this.input.keyboard?.on("keydown-C", () => {
+         this.scene.stop();
+         this.scene.resume(data.from);
+    });
+
 
     // Restart Button (Image)
     const restartBtn = this.add
@@ -105,6 +125,11 @@ export default class PauseScene extends Phaser.Scene {
       this.scene.stop(data.from);
       this.scene.start(data.from);
     });
+    this.input.keyboard?.on("keydown-R", () =>{
+         this.scene.stop();
+         this.scene.stop(data.from);
+         this.scene.start(data.from);
+    });
 
     // Home Button (Image)
     const homeBtn = this.add
@@ -119,6 +144,11 @@ export default class PauseScene extends Phaser.Scene {
       this.scene.stop(data.from);
       this.scene.start("Play");
       this.scene.stop();
+    });
+    this.input.keyboard?.on("keydown-H", () =>{
+         this.scene.stop(data.from);
+         this.scene.start("Play");
+         this.scene.stop();
     });
 
     // Allow ESC to unpause as well
