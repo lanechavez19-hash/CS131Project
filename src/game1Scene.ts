@@ -17,6 +17,7 @@ export default class Game1Scene extends Phaser.Scene {
     this.load.image("wipes", "assets/images/wipes.png");
     this.load.image("oil", "assets/images/oil.png");
     this.load.image("LeftoverFood", "assets/images/LeftoverFood.png");
+    this.load.image("homeBtn", "assets/images/homeBtn.png");
   }
 
   create() {
@@ -65,6 +66,21 @@ export default class Game1Scene extends Phaser.Scene {
     const startX = W / 2 - 300;
     const spacing = 150;
     const yPos = 298;
+
+       const homeBtn = this.add
+            .image(startX + spacing * 4, yPos - 267, "homeBtn")
+            .setOrigin(0.5)
+            .setInteractive({ useHandCursor: true })
+            .setScale(0.1);
+
+       homeBtn.on("pointerover", () => homeBtn.setTint(0xdddddd));
+       homeBtn.on("pointerout", () => homeBtn.clearTint());
+       homeBtn.on("pointerdown", () => {
+            this.scene.start("Play");
+       });
+       this.input.keyboard?.on("keydown-H", () => {
+            this.scene.start("Play");
+       });
 
     this.makeImageBtn(startX, yPos, "PaperTowel", () => this.askYesNoQuestion(1));
     this.makeImageBtn(startX + spacing, yPos, "water", () => this.askYesNoQuestion(2));
